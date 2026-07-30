@@ -91,6 +91,45 @@ Architecture Decision Records:
 - [ADR-0001: Use Azure managed services](docs/adr/0001-managed-services.md)
 - [ADR-0002: Network security model](docs/adr/0002-network-security.md)
 - [ADR-0003: Secrets and workload identities](docs/adr/0003-secrets-and-identities.md)
+- [ADR-0004: Store Terraform state in Azure Storage](docs/adr/0004-terraform-remote-state.md)
+
+## Azure environment
+
+The subscription, assigned resource group, permissions and trainer-provided
+App Service Plan were inspected before Terraform implementation:
+
+- [Azure environment discovery](docs/azure-environment.md)
+
+Confirmed deployment context:
+
+- environment: non-production;
+- resource group: `hmezouarRG`;
+- region: `francecentral`;
+- shared Linux App Service Plan: `plan-npr-prf2026` (`S3`) in
+  `rg-shared-prf2026`;
+- the shared plan is referenced but is not managed by this project.
+- selected Terraform state Storage Account name: `sthmezouartfstate`;
+- Terraform state container: `tfstate`;
+- Terraform state key: `nonprod/terraform.tfstate`.
+
+The Storage Account name has been checked for availability but the resource
+must still be created by the bootstrap configuration. The Azure subscription
+and tenant identifiers are supplied through local environment variables or
+GitHub Actions configuration and are intentionally not published in this
+repository.
+
+## Secrets management
+
+Application secrets are stored in Azure Key Vault. The backend Web App uses a
+system-assigned managed identity and receives the `Key Vault Secrets User` role
+on the vault. GitHub Actions uses OpenID Connect instead of a permanent Azure
+client secret.
+
+Identifiers required by CI/CD are configured outside the source code:
+
+- `AZURE_CLIENT_ID`;
+- `AZURE_TENANT_ID`;
+- `AZURE_SUBSCRIPTION_ID`.
 
 ## Planned repository structure
 
@@ -98,6 +137,7 @@ Architecture Decision Records:
 .
 ├── .github/
 │   └── workflows/
+├── bootstrap/
 ├── docs/
 │   ├── architecture-managed-services.drawio
 │   ├── architecture-managed-services.png
@@ -182,7 +222,7 @@ Before implementing or deploying the infrastructure, confirm:
 - the permitted PostgreSQL and Azure Managed Redis SKUs;
 - permission to create Azure Container Registry;
 - availability of private networking features;
-- the remote Terraform state configuration;
+- creation and validation of the selected remote-state Storage Account;
 - the identity and permissions used by GitHub Actions.
 
 ## Local tools

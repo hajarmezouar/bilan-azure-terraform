@@ -16,8 +16,8 @@ would create a security and rotation risk.
 
 - store sensitive application configuration in Azure Key Vault;
 - enable Azure RBAC authorization on Key Vault;
-- assign a managed identity to the backend Web App;
-- grant that identity only the minimum roles it requires;
+- assign a system-assigned managed identity to the backend Web App;
+- grant that identity the `Key Vault Secrets User` role on the vault;
 - use GitHub Actions OpenID Connect federation for Azure authentication;
 - do not store an Azure client secret in GitHub;
 - store Terraform state in a protected remote Azure Storage backend;
