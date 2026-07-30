@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Superseded by [ADR-0005](0005-hcp-terraform-state.md)
 
 ## Context
 
@@ -41,3 +41,9 @@ not considered deployed until the bootstrap operation succeeds.
 - State files and saved plan files must never be committed to Git.
 - Terraform state must be treated as sensitive because it can contain generated
   credentials and previous values.
+
+## Superseding decision
+
+Following the architecture review, the project selected HCP Terraform instead
+of creating a dedicated Azure Storage Account. The Azure bootstrap described by
+this ADR was planned but not applied.

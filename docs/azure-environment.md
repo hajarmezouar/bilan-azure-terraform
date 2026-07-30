@@ -68,25 +68,17 @@ hard-coding the shared plan name in the deployment workflow.
 
 ## Terraform remote state
 
-The following backend configuration has been selected:
+Following the architecture review, HCP Terraform (`app.terraform.io`) was
+selected for remote state and state locking. The planned workspace is
+`azure-quiz-nonprod`.
 
-| Property | Value |
-| --- | --- |
-| Resource group | `hmezouarRG` |
-| Storage Account name | `sthmezouartfstate` |
-| Region | `francecentral` |
-| Replication | `Standard_LRS` |
-| Blob container | `tfstate` |
-| State key | `nonprod/terraform.tfstate` |
-| Authentication | Microsoft Entra ID |
+The previously designed Azure Storage Account `sthmezouartfstate` was not
+deployed. Its bootstrap configuration is superseded by the HCP Terraform
+decision.
 
-The Storage Account name was confirmed as globally available. The resource has
-not yet been created and must not be described as deployed. A separate
-bootstrap configuration will create the Storage Account and private Blob
-container before the first initialization of the main Terraform configuration.
-
-The backend must enforce HTTPS, TLS 1.2 or later and disabled public Blob
-access. Terraform state is sensitive and must never be committed to Git.
+The HCP Terraform organization and workspace must be created before the first
+infrastructure deployment. Authentication tokens must never be committed.
+Terraform state remains sensitive.
 
 ## Secrets and identities
 
@@ -131,8 +123,8 @@ and CI/CD.
 
 The following items must be confirmed before the first deployment:
 
-- create and verify the selected Terraform remote-state Storage Account;
-- grant the deployment identities the required Blob data role;
+- create the HCP Terraform organization and `azure-quiz-nonprod` workspace;
+- configure HCP Terraform authentication for local and CI/CD execution;
 - permission to create Azure Container Registry;
 - PostgreSQL Flexible Server SKU and regional availability;
 - Azure Managed Redis SKU and regional availability;

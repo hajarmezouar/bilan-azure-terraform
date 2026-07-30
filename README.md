@@ -33,7 +33,7 @@ The selected target is **Azure managed services**:
 - Azure Managed Redis provides caching;
 - Azure Storage stores exported quiz results;
 - Azure Key Vault stores sensitive configuration;
-- Application Insights, Log Analytics and Azure Monitor provide observability.
+- monitoring and alerting are intentionally deferred to a later iteration.
 
 ![Azure Quiz managed-services architecture](docs/architecture-managed-services.png)
 
@@ -91,7 +91,8 @@ Architecture Decision Records:
 - [ADR-0001: Use Azure managed services](docs/adr/0001-managed-services.md)
 - [ADR-0002: Network security model](docs/adr/0002-network-security.md)
 - [ADR-0003: Secrets and workload identities](docs/adr/0003-secrets-and-identities.md)
-- [ADR-0004: Store Terraform state in Azure Storage](docs/adr/0004-terraform-remote-state.md)
+- [ADR-0004: Store Terraform state in Azure Storage (superseded)](docs/adr/0004-terraform-remote-state.md)
+- [ADR-0005: Store Terraform state in HCP Terraform](docs/adr/0005-hcp-terraform-state.md)
 
 ## Azure environment
 
@@ -108,15 +109,13 @@ Confirmed deployment context:
 - shared Linux App Service Plan: `plan-npr-prf2026` (`S3`) in
   `rg-shared-prf2026`;
 - the shared plan is referenced but is not managed by this project.
-- selected Terraform state Storage Account name: `sthmezouartfstate`;
-- Terraform state container: `tfstate`;
-- Terraform state key: `nonprod/terraform.tfstate`.
+- remote state and state locking: HCP Terraform (`app.terraform.io`);
+- planned HCP Terraform workspace: `azure-quiz-nonprod`.
 
-The Storage Account name has been checked for availability but the resource
-must still be created by the bootstrap configuration. The Azure subscription
-and tenant identifiers are supplied through local environment variables or
-GitHub Actions configuration and are intentionally not published in this
-repository.
+The HCP Terraform organization and workspace must be created before the first
+infrastructure deployment. The Azure subscription and tenant identifiers are
+supplied through local environment variables or CI/CD configuration and are
+intentionally not published in this repository.
 
 ## Secrets management
 
@@ -137,28 +136,22 @@ Identifiers required by CI/CD are configured outside the source code:
 .
 ├── .github/
 │   └── workflows/
-├── bootstrap/
 ├── docs/
 │   ├── architecture-managed-services.drawio
 │   ├── architecture-managed-services.png
 │   └── adr/
-├── environments/
-│   └── nonprod/
-├── modules/
-│   ├── container-registry/
-│   ├── key-vault/
-│   ├── monitoring/
-│   ├── postgresql/
-│   ├── redis/
-│   ├── static-web-app/
-│   ├── storage/
-│   └── web-app/
-├── backend.tf
-├── main.tf
-├── outputs.tf
-├── providers.tf
-├── variables.tf
-└── versions.tf
+└── terraform/
+    ├── environments/
+    │   └── nonprod/
+    └── modules/
+        ├── container-registry/
+        ├── key-vault/
+        ├── network/
+        ├── postgresql/
+        ├── redis/
+        ├── static-web-app/
+        ├── storage/
+        └── web-app/
 ```
 
 This structure will be created incrementally as the infrastructure is
@@ -187,7 +180,7 @@ hard-coded resource names.
 - Sensitive configuration is stored in Azure Key Vault.
 - The frontend never connects directly to PostgreSQL, Redis, Storage or Key
   Vault.
-- Terraform state is stored in a remote Azure Storage backend.
+- Terraform state and locking are managed by HCP Terraform.
 - HTTPS is required for public and service-to-service communication.
 
 ## CI/CD objectives
@@ -222,7 +215,7 @@ Before implementing or deploying the infrastructure, confirm:
 - the permitted PostgreSQL and Azure Managed Redis SKUs;
 - permission to create Azure Container Registry;
 - availability of private networking features;
-- creation and validation of the selected remote-state Storage Account;
+- creation of the HCP Terraform organization and non-production workspace;
 - the identity and permissions used by GitHub Actions.
 
 ## Local tools
