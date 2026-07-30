@@ -1,6 +1,6 @@
 <mxfile host="app.diagrams.net" modified="2026-07-30T19:30:00.000Z" agent="Codex" version="30.3.14" compressed="false">
   <diagram id="managed-services-network" name="Architecture overview">
-    <mxGraphModel dx="2400" dy="1400" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2400" pageHeight="1400" math="0" shadow="0" adaptiveColors="auto">
+    <mxGraphModel dx="2400" dy="1400" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2400" pageHeight="1400" background="#FFFFFF" math="0" shadow="0" adaptiveColors="none">
       <root>
         <mxCell id="0"/>
         <mxCell id="1" parent="0"/>
