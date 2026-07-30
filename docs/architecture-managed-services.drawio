@@ -1,0 +1,223 @@
+<mxfile host="app.diagrams.net" modified="2026-07-30T18:00:00.000Z" agent="Codex" version="30.3.14" compressed="false">
+  <diagram id="clear-managed-services" name="Architecture overview">
+    <mxGraphModel dx="2200" dy="1400" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="2200" pageHeight="1400" math="0" shadow="0" adaptiveColors="auto">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <mxCell id="title" value="Azure Quiz - Managed Services Architecture" style="text;html=1;align=center;verticalAlign=middle;fontSize=28;fontStyle=1;fontColor=#172B4D;" vertex="1" parent="1">
+          <mxGeometry x="500" y="20" width="1200" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="subtitle" value="Non-production environment | Terraform | GitHub Actions | Spring Boot container | Angular frontend" style="text;html=1;align=center;verticalAlign=middle;fontSize=16;fontColor=#5E6C84;" vertex="1" parent="1">
+          <mxGeometry x="450" y="65" width="1300" height="30" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="github-zone" value="SOURCE CODE AND CI/CD" style="swimlane;html=1;startSize=40;rounded=1;strokeWidth=2;strokeColor=#6B7280;fillColor=#F3F4F6;fontStyle=1;fontSize=17;horizontal=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="120" width="2000" height="245" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="frontend-repo" value="Frontend repository&#xa;Angular source code" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EDE9FE;strokeColor=#8B5CF6;strokeWidth=2;fontStyle=1;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="150" y="190" width="260" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="backend-repo" value="Backend repository&#xa;Spring Boot + Dockerfile" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EDE9FE;strokeColor=#8B5CF6;strokeWidth=2;fontStyle=1;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="450" y="190" width="280" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="terraform-repo" value="Terraform repository&#xa;Infrastructure as Code" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EDE9FE;strokeColor=#8B5CF6;strokeWidth=2;fontStyle=1;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="770" y="190" width="280" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="actions" value="GitHub Actions&#xa;Build - Test - Scan - Deploy" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DCFCE7;strokeColor=#16A34A;strokeWidth=3;fontStyle=1;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="1150" y="180" width="360" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="oidc" value="OIDC federation&#xa;Temporary Azure credentials" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FEF3C7;strokeColor=#D97706;strokeWidth=2;fontStyle=1;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="1600" y="190" width="350" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="azure-zone" value="AZURE SUBSCRIPTION - DEDICATED NON-PRODUCTION RESOURCE GROUP" style="swimlane;html=1;startSize=45;rounded=1;strokeWidth=3;strokeColor=#0078D4;fillColor=#EFF8FF;fontStyle=1;fontSize=18;horizontal=1;" vertex="1" parent="1">
+          <mxGeometry x="100" y="410" width="2000" height="850" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="users" value="Internet users" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontStyle=1;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="15" y="585" width="70" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="frontend-zone" value="PUBLIC ENTRY POINT" style="swimlane;html=1;startSize=35;rounded=1;strokeWidth=2;strokeColor=#2563EB;fillColor=#DBEAFE;fontStyle=1;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="150" y="500" width="380" height="230" as="geometry"/>
+        </mxCell>
+        <mxCell id="swa-card" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2563EB;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="195" y="565" width="290" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="swa-icon" value="" style="shape=image;html=1;imageAspect=0;aspect=fixed;image=img/lib/azure2/preview/Static_Apps.svg;" vertex="1" parent="swa-card">
+          <mxGeometry x="20" y="25" width="70" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="swa-label" value="Azure Static Web Apps&#xa;Angular frontend&#xa;Public HTTPS URL [R1]" style="text;html=1;align=left;verticalAlign=middle;fontSize=15;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="swa-card">
+          <mxGeometry x="105" y="20" width="170" height="80" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="backend-zone" value="BACKEND HOSTING" style="swimlane;html=1;startSize=35;rounded=1;strokeWidth=2;strokeColor=#D97706;fillColor=#FFF7ED;fontStyle=1;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="610" y="470" width="500" height="420" as="geometry"/>
+        </mxCell>
+        <mxCell id="plan-card" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6B7280;strokeWidth=2;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="700" y="525" width="320" height="115" as="geometry"/>
+        </mxCell>
+        <mxCell id="plan-icon" value="" style="shape=image;html=1;imageAspect=0;aspect=fixed;image=img/lib/azure2/app_services/App_Service_Plans.svg;" vertex="1" parent="plan-card">
+          <mxGeometry x="20" y="22" width="68" height="68" as="geometry"/>
+        </mxCell>
+        <mxCell id="plan-label" value="Shared App Service Plan&#xa;Provided by trainer&#xa;Located using tags [R4]" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="plan-card">
+          <mxGeometry x="105" y="15" width="195" height="85" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="webapp-card" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#D97706;strokeWidth=3;" vertex="1" parent="1">
+          <mxGeometry x="690" y="700" width="340" height="135" as="geometry"/>
+        </mxCell>
+        <mxCell id="webapp-icon" value="" style="shape=image;html=1;imageAspect=0;aspect=fixed;image=img/lib/azure2/containers/App_Services.svg;" vertex="1" parent="webapp-card">
+          <mxGeometry x="20" y="27" width="78" height="78" as="geometry"/>
+        </mxCell>
+        <mxCell id="webapp-label" value="Azure Linux Web App&#xa;Spring Boot container&#xa;Managed identity&#xa;HTTPS only [R2,R5]" style="text;html=1;align=left;verticalAlign=middle;fontSize=15;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="webapp-card">
+          <mxGeometry x="118" y="15" width="205" height="105" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="data-zone" value="PROTECTED DATA AND SECRETS - ACCESSED BY BACKEND ONLY [R3]" style="swimlane;html=1;startSize=35;rounded=1;strokeWidth=2;strokeColor=#16A34A;fillColor=#F0FDF4;fontStyle=1;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="1190" y="470" width="820" height="420" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="postgres-card" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#16A34A;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="540" width="330" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="postgres-icon" value="" style="shape=image;html=1;imageAspect=0;aspect=fixed;image=img/lib/azure2/databases/Azure_Database_PostgreSQL_Server.svg;" vertex="1" parent="postgres-card">
+          <mxGeometry x="20" y="25" width="70" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="postgres-label" value="PostgreSQL Flexible Server&#xa;Permanent quiz data&#xa;TLS port 5432" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="postgres-card">
+          <mxGeometry x="108" y="17" width="205" height="85" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="redis-card" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#16A34A;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1630" y="540" width="330" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="redis-icon" value="" style="shape=image;html=1;imageAspect=0;aspect=fixed;image=img/lib/azure2/databases/Azure_Managed_Redis.svg;" vertex="1" parent="redis-card">
+          <mxGeometry x="20" y="25" width="70" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="redis-label" value="Azure Managed Redis&#xa;Application cache&#xa;TLS connection" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="redis-card">
+          <mxGeometry x="108" y="17" width="205" height="85" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="storage-card" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#16A34A;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="720" width="330" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="storage-icon" value="" style="shape=image;html=1;imageAspect=0;aspect=fixed;image=img/lib/azure2/storage/Storage_Accounts.svg;" vertex="1" parent="storage-card">
+          <mxGeometry x="20" y="25" width="70" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="storage-label" value="Application Storage Account&#xa;Quiz result exports&#xa;Managed identity access" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="storage-card">
+          <mxGeometry x="108" y="17" width="205" height="85" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="keyvault-card" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#16A34A;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1630" y="720" width="330" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="keyvault-icon" value="" style="shape=image;html=1;imageAspect=0;aspect=fixed;image=img/lib/azure2/security/Key_Vaults.svg;" vertex="1" parent="keyvault-card">
+          <mxGeometry x="20" y="25" width="70" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="keyvault-label" value="Azure Key Vault&#xa;Database credentials&#xa;Azure RBAC [R5]" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="keyvault-card">
+          <mxGeometry x="108" y="17" width="205" height="85" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="acr-card" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0891B2;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="250" y="810" width="310" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="acr-icon" value="" style="shape=image;html=1;imageAspect=0;aspect=fixed;image=img/lib/azure2/containers/Container_Registries.svg;" vertex="1" parent="acr-card">
+          <mxGeometry x="20" y="25" width="70" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="acr-label" value="Azure Container Registry&#xa;Backend Docker images&#xa;Tag = Git commit SHA [R4]" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="acr-card">
+          <mxGeometry x="108" y="17" width="185" height="85" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="state-card" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6B7280;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="250" y="1010" width="310" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="state-icon" value="" style="shape=image;html=1;imageAspect=0;aspect=fixed;image=img/lib/azure2/storage/Storage_Accounts.svg;" vertex="1" parent="state-card">
+          <mxGeometry x="20" y="25" width="70" height="70" as="geometry"/>
+        </mxCell>
+        <mxCell id="state-label" value="Terraform State Storage&#xa;Remote backend&#xa;Separate from app storage" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="state-card">
+          <mxGeometry x="108" y="17" width="185" height="85" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="monitor-zone" value="OBSERVABILITY AND INCIDENT REPORTING [R6]" style="swimlane;html=1;startSize=35;rounded=1;strokeWidth=2;strokeColor=#7C3AED;fillColor=#F5F3FF;fontStyle=1;fontSize=16;" vertex="1" parent="1">
+          <mxGeometry x="650" y="965" width="1320" height="210" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="insights-card" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7C3AED;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="700" y="1025" width="250" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="insights-icon" value="" style="shape=image;html=1;imageAspect=0;aspect=fixed;image=img/lib/azure2/management_governance/Application_Insights.svg;" vertex="1" parent="insights-card">
+          <mxGeometry x="18" y="25" width="60" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="insights-label" value="Application Insights&#xa;Requests, errors, traces" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="insights-card">
+          <mxGeometry x="92" y="20" width="145" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="logs-card" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7C3AED;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1000" y="1025" width="250" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="logs-icon" value="" style="shape=image;html=1;imageAspect=0;aspect=fixed;image=img/lib/azure2/management_governance/Log_Analytics_Workspaces.svg;" vertex="1" parent="logs-card">
+          <mxGeometry x="18" y="25" width="60" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="logs-label" value="Log Analytics&#xa;Centralized logs and queries" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="logs-card">
+          <mxGeometry x="92" y="20" width="145" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="alerts-card" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#7C3AED;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="1300" y="1025" width="250" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="alerts-icon" value="" style="shape=image;html=1;imageAspect=0;aspect=fixed;image=img/lib/azure2/management_governance/Alerts.svg;" vertex="1" parent="alerts-card">
+          <mxGeometry x="18" y="25" width="60" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="alerts-label" value="Azure Monitor Alerts&#xa;Availability and error rules" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="alerts-card">
+          <mxGeometry x="92" y="20" width="145" height="70" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="developers-card" value="Developers&#xa;Email / Microsoft Teams" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FEE2E2;strokeColor=#DC2626;strokeWidth=2;fontStyle=1;fontSize=15;" vertex="1" parent="1">
+          <mxGeometry x="1600" y="1025" width="290" height="110" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="exception-note" value="DOCUMENTED MANAGED-SERVICES EXCEPTION&#xa;Static Web Apps may require a publicly reachable backend origin.&#xa;Mitigations: HTTPS only, exact CORS origin, API authentication/access control, and no public access to data services." style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;fillColor=#FEF3C7;strokeColor=#D97706;strokeWidth=2;fontSize=14;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="100" y="1285" width="950" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="legend" value="LEGEND&#xa;Blue solid arrow = user/application traffic&#xa;Purple dashed arrow = CI/CD deployment&#xa;Green solid arrow = backend-to-data access&#xa;Purple solid arrow = telemetry and incident flow" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#6B7280;strokeWidth=2;fontSize=14;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="1100" y="1285" width="600" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="tags" value="COMMON TAGS&#xa;owner=&lt;student-id&gt; | environment=nonprod | project=azure-quiz | managed-by=terraform" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#0078D4;strokeWidth=2;fontSize=14;align=left;spacingLeft=10;" vertex="1" parent="1">
+          <mxGeometry x="1740" y="1285" width="360" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="repo-front-actions" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#7C3AED;strokeWidth=2;endArrow=block;" edge="1" parent="1" source="frontend-repo" target="actions"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="repo-back-actions" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#7C3AED;strokeWidth=2;endArrow=block;" edge="1" parent="1" source="backend-repo" target="actions"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="repo-tf-actions" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#7C3AED;strokeWidth=2;endArrow=block;" edge="1" parent="1" source="terraform-repo" target="actions"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="actions-oidc" value="Federated login" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#D97706;strokeWidth=2;endArrow=block;fontSize=12;" edge="1" parent="1" source="actions" target="oidc"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="users-swa" value="HTTPS 443" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#2563EB;strokeWidth=3;endArrow=block;fontSize=13;fontStyle=1;" edge="1" parent="1" source="users" target="swa-card"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="swa-webapp" value="REST API / HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#2563EB;strokeWidth=3;endArrow=block;fontSize=13;fontStyle=1;" edge="1" parent="1" source="swa-card" target="webapp-card"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="plan-webapp" value="Provides compute" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#6B7280;strokeWidth=2;dashed=1;endArrow=block;fontSize=12;" edge="1" parent="1" source="plan-card" target="webapp-card"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="acr-webapp" value="Pull image by SHA" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#0891B2;strokeWidth=2;endArrow=block;fontSize=12;" edge="1" parent="1" source="acr-card" target="webapp-card"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="webapp-postgres" value="TLS / 5432" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#16A34A;strokeWidth=2;endArrow=block;fontSize=12;" edge="1" parent="1" source="webapp-card" target="postgres-card"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="webapp-redis" value="TLS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#16A34A;strokeWidth=2;endArrow=block;fontSize=12;" edge="1" parent="1" source="webapp-card" target="redis-card"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="webapp-storage" value="HTTPS + identity" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#16A34A;strokeWidth=2;endArrow=block;fontSize=12;" edge="1" parent="1" source="webapp-card" target="storage-card"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="webapp-keyvault" value="HTTPS + identity" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#16A34A;strokeWidth=2;endArrow=block;fontSize=12;" edge="1" parent="1" source="webapp-card" target="keyvault-card"><mxGeometry relative="1" as="geometry"/></mxCell>
+
+        <mxCell id="actions-swa" value="Deploy Angular" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#7C3AED;strokeWidth=2;dashed=1;endArrow=block;fontSize=12;" edge="1" parent="1" source="actions" target="swa-card">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1120" y="390"/><mxPoint x="340" y="390"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="actions-acr" value="Build, scan, push" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#7C3AED;strokeWidth=2;dashed=1;endArrow=block;fontSize=12;" edge="1" parent="1" source="actions" target="acr-card">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1130" y="385"/><mxPoint x="590" y="385"/><mxPoint x="590" y="870"/></Array></mxGeometry>
+        </mxCell>
+        <mxCell id="actions-state" value="Terraform plan/apply" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#7C3AED;strokeWidth=2;dashed=1;endArrow=block;fontSize=12;" edge="1" parent="1" source="actions" target="state-card">
+          <mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1110" y="375"/><mxPoint x="120" y="375"/><mxPoint x="120" y="1070"/></Array></mxGeometry>
+        </mxCell>
+
+        <mxCell id="webapp-insights" value="Logs, metrics, traces" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#7C3AED;strokeWidth=2;endArrow=block;fontSize=12;" edge="1" parent="1" source="webapp-card" target="insights-card"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="insights-logs" value="Telemetry" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#7C3AED;strokeWidth=2;endArrow=block;fontSize=12;" edge="1" parent="1" source="insights-card" target="logs-card"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="logs-alerts" value="Alert queries" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#7C3AED;strokeWidth=2;endArrow=block;fontSize=12;" edge="1" parent="1" source="logs-card" target="alerts-card"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="alerts-developers" value="Incident notification" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#DC2626;strokeWidth=2;endArrow=block;fontSize=12;" edge="1" parent="1" source="alerts-card" target="developers-card"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
