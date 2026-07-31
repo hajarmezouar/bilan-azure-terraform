@@ -31,10 +31,9 @@ resource "azapi_resource" "this" {
   tags = merge(var.tags, { component = "application-storage" })
 }
 
-resource "azapi_resource" "blob_service" {
-  type      = "Microsoft.Storage/storageAccounts/blobServices@2023-05-01"
-  parent_id = azapi_resource.this.id
-  name      = "default"
+resource "azapi_update_resource" "blob_service" {
+  type        = "Microsoft.Storage/storageAccounts/blobServices@2023-05-01"
+  resource_id = "${azapi_resource.this.id}/blobServices/default"
 
   body = {
     properties = {
@@ -56,7 +55,7 @@ resource "azapi_resource" "blob_service" {
 
 resource "azapi_resource" "application_files" {
   type      = "Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01"
-  parent_id = azapi_resource.blob_service.id
+  parent_id = "${azapi_resource.this.id}/blobServices/default"
   name      = var.container_name
 
   body = {
@@ -64,6 +63,8 @@ resource "azapi_resource" "application_files" {
       publicAccess = "None"
     }
   }
+
+  depends_on = [azapi_update_resource.blob_service]
 }
 
 resource "azurerm_private_endpoint" "blob" {
