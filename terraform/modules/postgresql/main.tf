@@ -26,6 +26,12 @@ resource "azurerm_postgresql_flexible_server" "this" {
     password_auth_enabled         = true
   }
 
+  lifecycle {
+    # Azure selects a zone when none is requested. Preserve that placement
+    # instead of proposing a meaningless zone -> null update after creation.
+    ignore_changes = [zone]
+  }
+
   tags = merge(var.tags, {
     component = "database"
   })

@@ -135,6 +135,7 @@ module "storage" {
 
   name                       = var.storage_account_name
   resource_group_name        = data.azurerm_resource_group.project.name
+  resource_group_id          = data.azurerm_resource_group.project.id
   location                   = data.azurerm_resource_group.project.location
   replication_type           = var.storage_replication_type
   access_tier                = var.storage_access_tier
