@@ -20,7 +20,7 @@ output "port" {
 
 output "access_key_secret_name" {
   description = "Key Vault secret containing the Redis access key."
-  value       = azurerm_key_vault_secret.access_key.name
+  value       = azapi_resource.access_key.name
 }
 
 output "private_endpoint_id" {

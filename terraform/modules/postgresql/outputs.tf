@@ -25,7 +25,7 @@ output "administrator_login" {
 
 output "password_secret_name" {
   description = "Key Vault secret containing the PostgreSQL password."
-  value       = azurerm_key_vault_secret.administrator_password.name
+  value       = azapi_resource.administrator_password.name
 }
 
 output "private_endpoint_id" {

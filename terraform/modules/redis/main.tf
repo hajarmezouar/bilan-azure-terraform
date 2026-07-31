@@ -42,12 +42,26 @@ resource "azurerm_private_endpoint" "this" {
   })
 }
 
-resource "azurerm_key_vault_secret" "access_key" {
-  name             = var.access_key_secret_name
-  key_vault_id     = var.key_vault_id
-  value_wo         = azurerm_managed_redis.this.default_database[0].primary_access_key
-  value_wo_version = 1
-  content_type     = "Azure Managed Redis access key"
+resource "azapi_resource" "access_key" {
+  type      = "Microsoft.KeyVault/vaults/secrets@2025-05-01"
+  parent_id = var.key_vault_id
+  name      = var.access_key_secret_name
+
+  body = {
+    properties = {
+      contentType = "Azure Managed Redis access key"
+    }
+  }
+
+  sensitive_body = {
+    properties = {
+      value = azurerm_managed_redis.this.default_database[0].primary_access_key
+    }
+  }
+
+  sensitive_body_version = {
+    "properties.value" = "1"
+  }
 
   tags = merge(var.tags, {
     component = "redis-credential"

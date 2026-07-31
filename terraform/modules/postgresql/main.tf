@@ -61,12 +61,26 @@ resource "azurerm_private_endpoint" "this" {
   })
 }
 
-resource "azurerm_key_vault_secret" "administrator_password" {
-  name             = var.password_secret_name
-  key_vault_id     = var.key_vault_id
-  value_wo         = ephemeral.random_password.administrator.result
-  value_wo_version = 1
-  content_type     = "PostgreSQL administrator password"
+resource "azapi_resource" "administrator_password" {
+  type      = "Microsoft.KeyVault/vaults/secrets@2025-05-01"
+  parent_id = var.key_vault_id
+  name      = var.password_secret_name
+
+  body = {
+    properties = {
+      contentType = "PostgreSQL administrator password"
+    }
+  }
+
+  sensitive_body = {
+    properties = {
+      value = ephemeral.random_password.administrator.result
+    }
+  }
+
+  sensitive_body_version = {
+    "properties.value" = "1"
+  }
 
   tags = merge(var.tags, {
     component = "postgresql-credential"
