@@ -18,3 +18,13 @@ backend_container_image_repository  = "azure-quiz-backend"
 backend_container_image_tag         = "latest"
 
 key_vault_name = "kv-hmezouar-quiz-np"
+
+postgresql_server_name        = "psql-hmezouar-quiz-np"
+postgresql_version            = "16"
+postgresql_sku_name           = "B_Standard_B1ms"
+postgresql_storage_mb         = 32768
+postgresql_database_name      = "quizz"
+postgresql_administrator_login = "quizadmin"
+
+redis_name     = "redis-hmezouar-quiz-np"
+redis_sku_name = "Balanced_B0"

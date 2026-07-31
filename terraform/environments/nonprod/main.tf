@@ -62,6 +62,36 @@ module "key_vault" {
   tags                       = var.common_tags
 }
 
+module "postgresql" {
+  source = "../../modules/postgresql"
+
+  name                       = var.postgresql_server_name
+  resource_group_name        = data.azurerm_resource_group.project.name
+  location                   = data.azurerm_resource_group.project.location
+  postgresql_version         = var.postgresql_version
+  sku_name                   = var.postgresql_sku_name
+  storage_mb                 = var.postgresql_storage_mb
+  database_name              = var.postgresql_database_name
+  administrator_login        = var.postgresql_administrator_login
+  key_vault_id               = module.key_vault.id
+  private_endpoint_subnet_id = module.network.private_endpoint_subnet_id
+  private_dns_zone_id        = module.network.private_dns_zone_ids["postgresql"]
+  tags                       = var.common_tags
+}
+
+module "redis" {
+  source = "../../modules/redis"
+
+  name                       = var.redis_name
+  resource_group_name        = data.azurerm_resource_group.project.name
+  location                   = data.azurerm_resource_group.project.location
+  sku_name                   = var.redis_sku_name
+  key_vault_id               = module.key_vault.id
+  private_endpoint_subnet_id = module.network.private_endpoint_subnet_id
+  private_dns_zone_id        = module.network.private_dns_zone_ids["redis"]
+  tags                       = var.common_tags
+}
+
 module "web_app" {
   source = "../../modules/web-app"
 
@@ -75,5 +105,14 @@ module "web_app" {
   key_vault_id                    = module.key_vault.id
   container_image_repository      = var.backend_container_image_repository
   container_image_tag             = var.backend_container_image_tag
-  tags                            = var.common_tags
+  app_settings = {
+    SPRING_DATASOURCE_URL      = "jdbc:postgresql://${module.postgresql.fqdn}:5432/${module.postgresql.database_name}?sslmode=require"
+    SPRING_DATASOURCE_USERNAME = module.postgresql.administrator_login
+    SPRING_DATASOURCE_PASSWORD = "@Microsoft.KeyVault(VaultName=${module.key_vault.name};SecretName=${module.postgresql.password_secret_name})"
+    REDIS_HOSTNAME             = module.redis.hostname
+    REDIS_PORT                 = tostring(module.redis.port)
+    REDIS_PASSWORD             = "@Microsoft.KeyVault(VaultName=${module.key_vault.name};SecretName=${module.redis.access_key_secret_name})"
+    REDIS_SSL_ENABLED          = "true"
+  }
+  tags = var.common_tags
 }

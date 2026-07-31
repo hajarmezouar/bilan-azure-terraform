@@ -194,6 +194,19 @@ Secrets User` on this vault. No secret is created in this iteration; future
 secret provisioning must run through a network path that can reach the Private
 Endpoint rather than temporarily exposing the vault publicly.
 
+The PostgreSQL and Azure Managed Redis modules provide the backend data layer.
+PostgreSQL 16 uses the burstable `B_Standard_B1ms` SKU, a private endpoint,
+TLS, 32 GiB auto-growing storage and the `quizz` database. Azure Managed Redis
+uses the cost-optimized `Balanced_B0` SKU, encrypted port 10000, `AllKeysLRU`
+eviction and a private endpoint. Public access is disabled on both services.
+
+The PostgreSQL password is generated as an ephemeral Terraform value and sent
+only to write-only server and Key Vault arguments. The Redis access key is
+handled as a sensitive provider value and copied to Key Vault through a
+write-only argument. The Web App receives service endpoints and Key Vault
+references, never clear-text credentials. Because the vault is private, secret
+creation at apply time requires a VNet-reachable Terraform runner.
+
 Private Endpoints themselves are created later by their respective service
 modules. The remaining service modules will be added incrementally in separate,
 reviewable commits.

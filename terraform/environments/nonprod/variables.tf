@@ -82,6 +82,54 @@ variable "key_vault_name" {
   default     = "kv-hmezouar-quiz-np"
 }
 
+variable "postgresql_server_name" {
+  description = "Globally unique PostgreSQL Flexible Server name."
+  type        = string
+  default     = "psql-hmezouar-quiz-np"
+}
+
+variable "postgresql_version" {
+  description = "PostgreSQL major version used by the application."
+  type        = string
+  default     = "16"
+}
+
+variable "postgresql_sku_name" {
+  description = "Cost-optimized PostgreSQL Flexible Server SKU."
+  type        = string
+  default     = "B_Standard_B1ms"
+}
+
+variable "postgresql_storage_mb" {
+  description = "PostgreSQL storage allocation in MiB."
+  type        = number
+  default     = 32768
+}
+
+variable "postgresql_database_name" {
+  description = "PostgreSQL database used by the backend."
+  type        = string
+  default     = "quizz"
+}
+
+variable "postgresql_administrator_login" {
+  description = "Non-sensitive PostgreSQL administrator login."
+  type        = string
+  default     = "quizadmin"
+}
+
+variable "redis_name" {
+  description = "Name of the non-production Azure Managed Redis instance."
+  type        = string
+  default     = "redis-hmezouar-quiz-np"
+}
+
+variable "redis_sku_name" {
+  description = "Cost-optimized Azure Managed Redis SKU."
+  type        = string
+  default     = "Balanced_B0"
+}
+
 variable "common_tags" {
   description = "Tags applied to resources managed by this project."
   type        = map(string)

@@ -70,3 +70,26 @@ output "key_vault" {
     private_endpoint_id = module.key_vault.private_endpoint_id
   }
 }
+
+output "postgresql" {
+  description = "Private PostgreSQL Flexible Server used by the backend."
+  value = {
+    id                  = module.postgresql.id
+    name                = module.postgresql.name
+    fqdn                = module.postgresql.fqdn
+    database_name       = module.postgresql.database_name
+    administrator_login = module.postgresql.administrator_login
+    private_endpoint_id = module.postgresql.private_endpoint_id
+  }
+}
+
+output "redis" {
+  description = "Private Azure Managed Redis instance used by the backend."
+  value = {
+    id                  = module.redis.id
+    name                = module.redis.name
+    hostname            = module.redis.hostname
+    port                = module.redis.port
+    private_endpoint_id = module.redis.private_endpoint_id
+  }
+}
