@@ -164,8 +164,18 @@ Identifiers required by CI/CD are configured outside the source code:
 ```
 
 The `terraform/environments/nonprod` root is now connected to HCP Terraform.
-The service modules will be added incrementally in separate, reviewable
-commits.
+The reusable network module prepares:
+
+- virtual network `10.50.0.0/16`;
+- App Service integration subnet `10.50.1.0/24`;
+- Private Endpoint subnet `10.50.2.0/24`;
+- an NSG restricting integration-subnet egress;
+- private DNS zones and VNet links for PostgreSQL, Managed Redis, Blob Storage
+  and Key Vault.
+
+Private Endpoints themselves are created later by their respective service
+modules. The remaining service modules will be added incrementally in separate,
+reviewable commits.
 
 ## Common tags
 

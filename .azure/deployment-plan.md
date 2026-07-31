@@ -1,6 +1,6 @@
 # Azure Deployment Plan
 
-> **Status:** Validated
+> **Status:** Validated — network foundation iteration
 
 Generated: 2026-07-31
 
@@ -193,5 +193,137 @@ foundation.
 
 ## 10. Next Step
 
-Review and create a signed commit for the validated HCP Terraform foundation.
-The next infrastructure iteration can then add the network module.
+Prepare the private network foundation as a separate Terraform iteration. The
+planned scope is one VNet, an App Service integration subnet, a private
+endpoint subnet, an NSG, private DNS zones and VNet links. No deployment is
+authorized during preparation or validation.
+
+---
+
+## 11. Network Foundation Iteration
+
+> **Status:** Validated
+
+### Objective
+
+Create a reusable Terraform network module for the non-production environment.
+This iteration prepares private connectivity but does not create service
+Private Endpoints; each service module will create its own endpoint and DNS
+zone group later.
+
+### Address plan
+
+| Network | CIDR | Purpose |
+|---------|------|---------|
+| `vnet-azure-quiz-nonprod` | `10.50.0.0/16` | Project address space |
+| `snet-appservice-integration` | `10.50.1.0/24` | App Service regional VNet integration |
+| `snet-private-endpoints` | `10.50.2.0/24` | Private Endpoints for PaaS services |
+
+The proposed address space does not overlap the three VNets currently visible
+in the subscription (`10.0.0.0/16`, `10.0.0.0/24`, and `10.224.0.0/12`).
+No peering is created in this iteration.
+
+### Resources to create
+
+| Terraform resource | Quantity | Security/configuration |
+|--------------------|----------|------------------------|
+| `azurerm_virtual_network` | 1 | Existing resource group and `francecentral`; common tags |
+| `azurerm_subnet` | 2 | Separate integration and Private Endpoint subnets |
+| `azurerm_network_security_group` | 1 | Integration subnet; controlled outbound and default-deny posture |
+| `azurerm_subnet_network_security_group_association` | 1 | Associates the NSG only with the integration subnet |
+| `azurerm_private_dns_zone` | 4 | PostgreSQL, Managed Redis, Blob Storage and Key Vault |
+| `azurerm_private_dns_zone_virtual_network_link` | 4 | One non-autoregistering VNet link per zone |
+
+Private DNS zone names:
+
+- `privatelink.postgres.database.azure.com`;
+- `privatelink.redis.azure.net`;
+- `privatelink.blob.core.windows.net`;
+- `privatelink.vaultcore.azure.net`.
+
+The integration subnet is delegated to `Microsoft.Web/serverFarms`. Private
+Endpoint network policies are disabled on the Private Endpoint subnet for
+compatibility with the planned endpoints and enabled on the App Service
+integration subnet. Default outbound access is disabled on both subnets. No
+public IP, NAT Gateway, peering, route table or firewall is created.
+
+### NSG rules
+
+| Priority | Direction | Action | Destination | Ports | Purpose |
+|----------|-----------|--------|-------------|-------|---------|
+| 100 | Outbound | Allow | `VirtualNetwork` | Any | Reach private endpoints |
+| 110 | Outbound | Allow | `AzureCloud` | 443 | Required Azure platform HTTPS dependencies |
+| 4000 | Outbound | Deny | `Internet` | Any | Prevent unrestricted Internet egress |
+
+The built-in NSG rules continue to deny unsolicited inbound traffic. More
+restrictive egress through Azure Firewall is outside this cost-optimized
+training scope.
+
+### Policy and provisioning limits
+
+- `Microsoft.Network` is registered;
+- the only subscription policy assignment found is the default Defender for
+  Cloud assignment; no network naming, location, tag or public-IP restriction
+  was discovered;
+- `Microsoft.Quota` is not registered, so quota CLI could not be used without
+  changing subscription governance;
+- fallback validation used current Azure CLI counts and Microsoft Learn's
+  official non-adjustable networking limits.
+
+| Resource | Add | Current | Total after | Limit | Result |
+|----------|-----|---------|-------------|-------|--------|
+| Virtual networks | 1 | 3 | 4 | 1,000 per region/subscription | Within limit |
+| Subnets in the new VNet | 2 | 0 | 2 | 3,000 per VNet | Within limit |
+| Network Security Groups | 1 | 3 | 4 | 5,000 per region/subscription | Within limit |
+| Private DNS zones | 4 | 1 | 5 | 1,000 per subscription | Within limit |
+| VNet links per new DNS zone | 1 | 0 | 1 | 1,000 per zone | Within limit |
+
+No compute capacity, public IP or paid SKU quota is consumed by this module.
+
+### Planned files
+
+| File | Change |
+|------|--------|
+| `terraform/modules/network/main.tf` | Create network, NSG, DNS zones and links |
+| `terraform/modules/network/variables.tf` | Define typed module inputs and CIDR validation |
+| `terraform/modules/network/outputs.tf` | Export VNet, subnet and DNS zone IDs |
+| `terraform/environments/nonprod/main.tf` | Instantiate the network module |
+| `terraform/environments/nonprod/variables.tf` | Add overridable network CIDRs |
+| `terraform/environments/nonprod/terraform.tfvars.example` | Document non-production network values |
+| `terraform/environments/nonprod/outputs.tf` | Expose non-sensitive network outputs |
+| `README.md` | Document the network module and commands |
+
+### Validation after approval
+
+1. `terraform fmt -recursive` and `terraform fmt -check -recursive`;
+2. `terraform init -input=false`;
+3. `terraform validate`;
+4. read-only `terraform plan` using the active Azure subscription;
+5. verify the exact resource count, CIDRs, delegation, DNS names and NSG rules;
+6. verify there are no deletes, replacements, secrets or unignored state files.
+
+No `terraform apply` is authorized in this iteration.
+
+### Network validation proof
+
+Validated on 2026-07-31 at 13:35 +02:00.
+
+| Check | Result |
+|-------|--------|
+| Terraform installation | Pass: Terraform 1.15.8 |
+| Azure CLI installation | Pass: Azure CLI 2.87.0 |
+| HCP initialization | Pass: workspace initialized and network module discovered |
+| Formatting | Pass: `terraform fmt -recursive` and format check |
+| Syntax | Pass: `terraform validate` |
+| Azure plan | Pass: `16 to add, 0 to change, 0 to destroy` |
+| Plan action inspection | Pass: all 16 resource changes are create-only |
+| Existing resources | Pass: `hmezouarRG` and the shared Linux S3 plan are read-only data sources |
+| Subnet hardening | Pass: default outbound disabled on both subnets; Private Endpoint policies enabled only on the integration subnet |
+| Network controls | Pass: App Service delegation, NSG association, controlled outbound rules and four non-autoregistering DNS links |
+| Static RBAC review | Not applicable: this network-only module creates no identity or role assignment |
+| Secret and state hygiene | Pass: no credential found; plans, provider cache and state are ignored |
+| Git integrity | Pass: `git diff --check` reports no whitespace error |
+
+The validated plan is saved locally as `.plans/nonprod-network.tfplan` and is
+ignored by Git. It must not be applied from an unreviewed or later-modified
+working tree.

@@ -28,3 +28,15 @@ output "shared_service_plan" {
     sku_name       = data.azurerm_service_plan.shared.sku_name
   }
 }
+
+output "network" {
+  description = "Network resources used by the non-production application."
+  value = {
+    virtual_network_id                = module.network.virtual_network_id
+    virtual_network_name              = module.network.virtual_network_name
+    app_service_integration_subnet_id = module.network.app_service_integration_subnet_id
+    app_service_integration_nsg_id    = module.network.app_service_integration_nsg_id
+    private_endpoint_subnet_id        = module.network.private_endpoint_subnet_id
+    private_dns_zone_ids              = module.network.private_dns_zone_ids
+  }
+}

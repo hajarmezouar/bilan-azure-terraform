@@ -25,3 +25,15 @@ data "azurerm_service_plan" "shared" {
     }
   }
 }
+
+module "network" {
+  source = "../../modules/network"
+
+  name_prefix                           = local.name_prefix
+  resource_group_name                   = data.azurerm_resource_group.project.name
+  location                              = data.azurerm_resource_group.project.location
+  vnet_address_space                    = var.vnet_address_space
+  app_service_integration_subnet_prefix = var.app_service_integration_subnet_prefix
+  private_endpoint_subnet_prefix        = var.private_endpoint_subnet_prefix
+  tags                                  = var.common_tags
+}

@@ -28,6 +28,24 @@ variable "shared_service_plan_resource_group_name" {
   default     = "rg-shared-prf2026"
 }
 
+variable "vnet_address_space" {
+  description = "CIDR address space assigned to the non-production virtual network."
+  type        = string
+  default     = "10.50.0.0/16"
+}
+
+variable "app_service_integration_subnet_prefix" {
+  description = "CIDR prefix of the subnet delegated to App Service."
+  type        = string
+  default     = "10.50.1.0/24"
+}
+
+variable "private_endpoint_subnet_prefix" {
+  description = "CIDR prefix reserved for Private Endpoints."
+  type        = string
+  default     = "10.50.2.0/24"
+}
+
 variable "common_tags" {
   description = "Tags applied to resources managed by this project."
   type        = map(string)
