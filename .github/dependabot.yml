@@ -1,0 +1,22 @@
+version: 2
+
+updates:
+  - package-ecosystem: "terraform"
+    directories:
+      - "/terraform/environments/nonprod"
+      - "/terraform/modules/postgresql"
+      - "/terraform/modules/redis"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "terraform"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "github-actions"

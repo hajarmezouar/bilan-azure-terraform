@@ -359,3 +359,17 @@ The project is intentionally divided into three repositories:
 - `bilan-azure-terraform` - Azure infrastructure;
 - `bilan-azure-backend` - Spring Boot API;
 - `bilan-azure-frontend` - Angular frontend.
+
+## Repository governance and security
+
+- commits are signed with SSH and must display the GitHub `Verified` badge;
+- root `CODEOWNERS` documents ownership of infrastructure, scripts and
+  documentation;
+- Dependabot checks Terraform providers and GitHub Actions every week;
+- the `Security` workflow runs on every push and pull request;
+- Trivy scans Terraform for high and critical IaC misconfigurations;
+- Gitleaks scans the complete Git history for committed secrets.
+
+The workflow does not rely on GitHub native secret scanning because its
+availability can depend on repository visibility and the GitHub plan. Gitleaks
+provides the required platform-independent control instead.
