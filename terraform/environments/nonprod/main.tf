@@ -92,6 +92,16 @@ module "redis" {
   tags                       = var.common_tags
 }
 
+module "static_web_app" {
+  source = "../../modules/static-web-app"
+
+  name                = var.frontend_static_web_app_name
+  resource_group_name = data.azurerm_resource_group.project.name
+  location            = var.frontend_static_web_app_location
+  sku_tier            = var.frontend_static_web_app_sku
+  tags                = var.common_tags
+}
+
 module "web_app" {
   source = "../../modules/web-app"
 
@@ -106,13 +116,31 @@ module "web_app" {
   container_image_repository      = var.backend_container_image_repository
   container_image_tag             = var.backend_container_image_tag
   app_settings = {
-    SPRING_DATASOURCE_URL      = "jdbc:postgresql://${module.postgresql.fqdn}:5432/${module.postgresql.database_name}?sslmode=require"
-    SPRING_DATASOURCE_USERNAME = module.postgresql.administrator_login
-    SPRING_DATASOURCE_PASSWORD = "@Microsoft.KeyVault(VaultName=${module.key_vault.name};SecretName=${module.postgresql.password_secret_name})"
-    REDIS_HOSTNAME             = module.redis.hostname
-    REDIS_PORT                 = tostring(module.redis.port)
-    REDIS_PASSWORD             = "@Microsoft.KeyVault(VaultName=${module.key_vault.name};SecretName=${module.redis.access_key_secret_name})"
-    REDIS_SSL_ENABLED          = "true"
+    SPRING_DATASOURCE_URL       = "jdbc:postgresql://${module.postgresql.fqdn}:5432/${module.postgresql.database_name}?sslmode=require"
+    SPRING_DATASOURCE_USERNAME  = module.postgresql.administrator_login
+    SPRING_DATASOURCE_PASSWORD  = "@Microsoft.KeyVault(VaultName=${module.key_vault.name};SecretName=${module.postgresql.password_secret_name})"
+    REDIS_HOSTNAME              = module.redis.hostname
+    REDIS_PORT                  = tostring(module.redis.port)
+    REDIS_PASSWORD              = "@Microsoft.KeyVault(VaultName=${module.key_vault.name};SecretName=${module.redis.access_key_secret_name})"
+    REDIS_SSL_ENABLED           = "true"
+    AZURE_STORAGE_ACCOUNT       = var.storage_account_name
+    AZURE_STORAGE_CONTAINER     = var.storage_container_name
+    AZURE_STORAGE_BLOB_ENDPOINT = "https://${var.storage_account_name}.blob.core.windows.net/"
   }
   tags = var.common_tags
+}
+
+module "storage" {
+  source = "../../modules/storage"
+
+  name                       = var.storage_account_name
+  resource_group_name        = data.azurerm_resource_group.project.name
+  location                   = data.azurerm_resource_group.project.location
+  replication_type           = var.storage_replication_type
+  access_tier                = var.storage_access_tier
+  container_name             = var.storage_container_name
+  private_endpoint_subnet_id = module.network.private_endpoint_subnet_id
+  private_dns_zone_id        = module.network.private_dns_zone_ids["storage"]
+  backend_principal_id       = module.web_app.principal_id
+  tags                       = var.common_tags
 }

@@ -184,8 +184,9 @@ the trainer-managed Linux S3 plan. It configures port `8080`, the `prod`
 profile, `/actuator/health`, HTTPS-only access, Always On, VNet integration and
 a system-assigned managed identity. That identity receives only `AcrPull` on
 the project registry; no registry password is created. Database, cache,
-storage, Key Vault, backend API-key and exact frontend CORS settings are added
-by later service integrations rather than committed as placeholders.
+storage and Key Vault settings are now supplied by their dedicated modules.
+Backend API-key and exact frontend CORS settings remain deployment-stage
+configuration rather than committed placeholders.
 
 The reusable Key Vault module prepares `kv-hmezouar-quiz-np` on the Standard
 tier with Azure RBAC, public network access disabled, a Private Endpoint and
@@ -207,9 +208,19 @@ write-only argument. The Web App receives service endpoints and Key Vault
 references, never clear-text credentials. Because the vault is private, secret
 creation at apply time requires a VNet-reachable Terraform runner.
 
-Private Endpoints themselves are created later by their respective service
-modules. The remaining service modules will be added incrementally in separate,
-reviewable commits.
+The Storage module creates the private `sthmezouarquiznp` StorageV2 account,
+the `application-files` Blob container and its Blob Private Endpoint. Public
+and shared-key access are disabled. The backend uses its managed identity with
+the account-scoped `Storage Blob Data Contributor` role, so no connection
+string or storage key is needed.
+
+The Static Web App module creates the Free `swa-hmezouar-quiz-np` frontend in
+`westeurope`, the closest supported region to the application resources in
+`francecentral`. Terraform exports only its public hostname and never its
+deployment token. Building and uploading Angular remain CI/CD responsibilities.
+
+All managed-service components shown in the architecture are now represented
+by reusable Terraform modules and can be reviewed before the first deployment.
 
 ## Common tags
 

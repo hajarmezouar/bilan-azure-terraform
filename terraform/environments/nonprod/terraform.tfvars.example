@@ -28,3 +28,12 @@ postgresql_administrator_login = "quizadmin"
 
 redis_name     = "redis-hmezouar-quiz-np"
 redis_sku_name = "Balanced_B0"
+
+storage_account_name     = "sthmezouarquiznp"
+storage_replication_type = "LRS"
+storage_access_tier      = "Hot"
+storage_container_name   = "application-files"
+
+frontend_static_web_app_name     = "swa-hmezouar-quiz-np"
+frontend_static_web_app_location = "westeurope"
+frontend_static_web_app_sku      = "Free"

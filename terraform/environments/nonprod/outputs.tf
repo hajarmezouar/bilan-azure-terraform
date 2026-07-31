@@ -93,3 +93,22 @@ output "redis" {
     private_endpoint_id = module.redis.private_endpoint_id
   }
 }
+
+output "storage" {
+  value = {
+    id                    = module.storage.id
+    name                  = module.storage.name
+    primary_blob_endpoint = module.storage.primary_blob_endpoint
+    container_name        = module.storage.container_name
+    private_endpoint_id   = module.storage.private_endpoint_id
+  }
+}
+
+output "frontend_static_web_app" {
+  value = {
+    id                = module.static_web_app.id
+    name              = module.static_web_app.name
+    default_host_name = module.static_web_app.default_host_name
+    https_url         = module.static_web_app.https_url
+  }
+}

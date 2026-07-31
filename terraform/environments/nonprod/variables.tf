@@ -130,6 +130,41 @@ variable "redis_sku_name" {
   default     = "Balanced_B0"
 }
 
+variable "storage_account_name" {
+  type    = string
+  default = "sthmezouarquiznp"
+}
+
+variable "storage_replication_type" {
+  type    = string
+  default = "LRS"
+}
+
+variable "storage_access_tier" {
+  type    = string
+  default = "Hot"
+}
+
+variable "storage_container_name" {
+  type    = string
+  default = "application-files"
+}
+
+variable "frontend_static_web_app_name" {
+  type    = string
+  default = "swa-hmezouar-quiz-np"
+}
+
+variable "frontend_static_web_app_location" {
+  type    = string
+  default = "westeurope"
+}
+
+variable "frontend_static_web_app_sku" {
+  type    = string
+  default = "Free"
+}
+
 variable "common_tags" {
   description = "Tags applied to resources managed by this project."
   type        = map(string)
