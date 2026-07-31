@@ -49,3 +49,14 @@ output "container_registry" {
     login_server = module.container_registry.login_server
   }
 }
+
+output "backend_web_app" {
+  description = "Linux Web App hosting the containerized Spring Boot backend."
+  value = {
+    id               = module.web_app.id
+    name             = module.web_app.name
+    default_hostname = module.web_app.default_hostname
+    https_url        = module.web_app.https_url
+    principal_id     = module.web_app.principal_id
+  }
+}

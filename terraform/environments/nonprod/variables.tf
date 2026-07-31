@@ -58,6 +58,24 @@ variable "container_registry_sku" {
   default     = "Basic"
 }
 
+variable "backend_web_app_name" {
+  description = "Globally unique name of the non-production backend Web App."
+  type        = string
+  default     = "app-azure-quiz-backend-nonprod"
+}
+
+variable "backend_container_image_repository" {
+  description = "ACR repository containing the Spring Boot backend image."
+  type        = string
+  default     = "azure-quiz-backend"
+}
+
+variable "backend_container_image_tag" {
+  description = "Container image tag deployed to the non-production backend."
+  type        = string
+  default     = "latest"
+}
+
 variable "common_tags" {
   description = "Tags applied to resources managed by this project."
   type        = map(string)

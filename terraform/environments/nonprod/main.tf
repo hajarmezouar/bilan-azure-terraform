@@ -47,3 +47,18 @@ module "container_registry" {
   sku                 = var.container_registry_sku
   tags                = var.common_tags
 }
+
+module "web_app" {
+  source = "../../modules/web-app"
+
+  name                            = var.backend_web_app_name
+  resource_group_name             = data.azurerm_resource_group.project.name
+  location                        = data.azurerm_resource_group.project.location
+  service_plan_id                 = data.azurerm_service_plan.shared.id
+  virtual_network_subnet_id       = module.network.app_service_integration_subnet_id
+  container_registry_id           = module.container_registry.id
+  container_registry_login_server = module.container_registry.login_server
+  container_image_repository      = var.backend_container_image_repository
+  container_image_tag             = var.backend_container_image_tag
+  tags                            = var.common_tags
+}

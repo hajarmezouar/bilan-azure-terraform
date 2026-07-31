@@ -12,3 +12,7 @@ private_endpoint_subnet_prefix        = "10.50.2.0/24"
 
 container_registry_name = "acrhmezouarquiznonprod"
 container_registry_sku  = "Basic"
+
+backend_web_app_name                = "app-azure-quiz-backend-nonprod"
+backend_container_image_repository  = "azure-quiz-backend"
+backend_container_image_tag         = "latest"

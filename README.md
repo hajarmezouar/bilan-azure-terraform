@@ -179,6 +179,14 @@ account and anonymous image pulls are disabled. A later Web App module will
 grant its managed identity `AcrPull`; the CI/CD identity will receive
 `AcrPush` through OIDC when that identity is configured.
 
+The reusable Web App module prepares the containerized Spring Boot backend on
+the trainer-managed Linux S3 plan. It configures port `8080`, the `prod`
+profile, `/actuator/health`, HTTPS-only access, Always On, VNet integration and
+a system-assigned managed identity. That identity receives only `AcrPull` on
+the project registry; no registry password is created. Database, cache,
+storage, Key Vault, backend API-key and exact frontend CORS settings are added
+by later service integrations rather than committed as placeholders.
+
 Private Endpoints themselves are created later by their respective service
 modules. The remaining service modules will be added incrementally in separate,
 reviewable commits.
