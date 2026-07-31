@@ -2,7 +2,7 @@ POWERSHELL ?= pwsh
 TERRAFORM_SCRIPT := scripts/terraform.ps1
 
 .PHONY: help terraform-fmt terraform-init terraform-validate terraform-check
-.PHONY: terraform-plan terraform-output
+.PHONY: terraform-plan terraform-apply terraform-output
 
 help:
 	@echo "Available targets:"
@@ -11,6 +11,7 @@ help:
 	@echo "  terraform-validate  Validate the non-production configuration"
 	@echo "  terraform-check     Format, initialize and validate"
 	@echo "  terraform-plan      Create a reviewed non-production plan"
+	@echo "  terraform-apply     Apply the previously reviewed non-production plan"
 	@echo "  terraform-output    Display the non-production outputs"
 
 terraform-fmt:
@@ -26,6 +27,9 @@ terraform-check: terraform-fmt terraform-init terraform-validate
 
 terraform-plan: terraform-check
 	$(POWERSHELL) -NoProfile -File $(TERRAFORM_SCRIPT) -Action plan
+
+terraform-apply:
+	$(POWERSHELL) -NoProfile -File $(TERRAFORM_SCRIPT) -Action apply
 
 terraform-output:
 	$(POWERSHELL) -NoProfile -File $(TERRAFORM_SCRIPT) -Action output

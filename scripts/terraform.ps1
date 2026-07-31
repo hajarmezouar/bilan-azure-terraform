@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory = $true)]
-    [ValidateSet("fmt", "init", "validate", "plan", "output")]
+    [ValidateSet("fmt", "init", "validate", "plan", "apply", "output")]
     [string]$Action
 )
 
@@ -69,6 +69,13 @@ switch ($Action) {
             "-var=subscription_id=$SubscriptionId",
             "-out=$PlanFile"
         )
+    }
+    "apply" {
+        if (-not (Test-Path -LiteralPath $PlanFile -PathType Leaf)) {
+            throw "Saved plan not found at '$PlanFile'. Run 'make terraform-plan' and review it before applying."
+        }
+
+        Invoke-Terraform @("apply", "-input=false", $PlanFile)
     }
     "output" {
         Invoke-Terraform @("output")
