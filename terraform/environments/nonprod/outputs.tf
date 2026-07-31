@@ -60,3 +60,13 @@ output "backend_web_app" {
     principal_id     = module.web_app.principal_id
   }
 }
+
+output "key_vault" {
+  description = "Private Key Vault used for application secrets."
+  value = {
+    id                  = module.key_vault.id
+    name                = module.key_vault.name
+    vault_uri           = module.key_vault.vault_uri
+    private_endpoint_id = module.key_vault.private_endpoint_id
+  }
+}

@@ -26,6 +26,8 @@ data "azurerm_service_plan" "shared" {
   }
 }
 
+data "azurerm_client_config" "current" {}
+
 module "network" {
   source = "../../modules/network"
 
@@ -48,6 +50,18 @@ module "container_registry" {
   tags                = var.common_tags
 }
 
+module "key_vault" {
+  source = "../../modules/key-vault"
+
+  name                       = var.key_vault_name
+  resource_group_name        = data.azurerm_resource_group.project.name
+  location                   = data.azurerm_resource_group.project.location
+  tenant_id                  = data.azurerm_client_config.current.tenant_id
+  private_endpoint_subnet_id = module.network.private_endpoint_subnet_id
+  private_dns_zone_id        = module.network.private_dns_zone_ids["key_vault"]
+  tags                       = var.common_tags
+}
+
 module "web_app" {
   source = "../../modules/web-app"
 
@@ -58,6 +72,7 @@ module "web_app" {
   virtual_network_subnet_id       = module.network.app_service_integration_subnet_id
   container_registry_id           = module.container_registry.id
   container_registry_login_server = module.container_registry.login_server
+  key_vault_id                    = module.key_vault.id
   container_image_repository      = var.backend_container_image_repository
   container_image_tag             = var.backend_container_image_tag
   tags                            = var.common_tags

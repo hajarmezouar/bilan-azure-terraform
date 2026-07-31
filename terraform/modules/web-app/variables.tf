@@ -38,6 +38,11 @@ variable "container_registry_login_server" {
   type        = string
 }
 
+variable "key_vault_id" {
+  description = "Resource ID of the Key Vault from which the Web App reads secrets."
+  type        = string
+}
+
 variable "container_image_repository" {
   description = "Container image repository inside the registry."
   type        = string

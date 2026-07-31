@@ -187,6 +187,13 @@ the project registry; no registry password is created. Database, cache,
 storage, Key Vault, backend API-key and exact frontend CORS settings are added
 by later service integrations rather than committed as placeholders.
 
+The reusable Key Vault module prepares `kv-hmezouar-quiz-np` on the Standard
+tier with Azure RBAC, public network access disabled, a Private Endpoint and
+the existing private DNS zone. The Web App identity receives only `Key Vault
+Secrets User` on this vault. No secret is created in this iteration; future
+secret provisioning must run through a network path that can reach the Private
+Endpoint rather than temporarily exposing the vault publicly.
+
 Private Endpoints themselves are created later by their respective service
 modules. The remaining service modules will be added incrementally in separate,
 reviewable commits.

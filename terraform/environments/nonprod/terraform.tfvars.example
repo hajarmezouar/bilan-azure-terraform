@@ -16,3 +16,5 @@ container_registry_sku  = "Basic"
 backend_web_app_name                = "app-azure-quiz-backend-nonprod"
 backend_container_image_repository  = "azure-quiz-backend"
 backend_container_image_tag         = "latest"
+
+key_vault_name = "kv-hmezouar-quiz-np"

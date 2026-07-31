@@ -76,6 +76,12 @@ variable "backend_container_image_tag" {
   default     = "latest"
 }
 
+variable "key_vault_name" {
+  description = "Globally unique name of the non-production Key Vault."
+  type        = string
+  default     = "kv-hmezouar-quiz-np"
+}
+
 variable "common_tags" {
   description = "Tags applied to resources managed by this project."
   type        = map(string)
