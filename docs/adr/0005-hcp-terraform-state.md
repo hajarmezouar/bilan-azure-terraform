@@ -20,13 +20,17 @@ locking.
 
 - service: `app.terraform.io`;
 - planned workspace: `azure-quiz-nonprod`;
+- workspace execution mode: local;
 - authentication tokens are never committed;
 - the organization name is configured after the HCP Terraform account is
   created;
 - Azure authentication uses short-lived federated credentials rather than a
   permanent client secret.
 
-The Terraform root module will use the native `cloud` configuration.
+The Terraform root module will use the native `cloud` configuration. HCP
+Terraform stores and locks state, while GitHub Actions executes Terraform and
+authenticates to Azure through OIDC. This preserves the CI/CD design shown in
+the architecture diagram.
 
 ## Alternatives considered
 
@@ -46,6 +50,8 @@ collaboration and can be lost with the local workstation.
 - no local bootstrap deployment is required;
 - HCP Terraform account and workspace setup become prerequisites;
 - state access is managed through HCP Terraform;
+- plans and applies execute in GitHub Actions rather than on HCP Terraform
+  workers;
 - HCP credentials must be provided through `terraform login` or protected
   CI/CD configuration;
 - Terraform state remains sensitive and must never be committed to Git.

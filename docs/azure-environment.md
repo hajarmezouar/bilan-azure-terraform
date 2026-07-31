@@ -78,7 +78,9 @@ decision.
 
 The HCP Terraform organization and workspace must be created before the first
 infrastructure deployment. Authentication tokens must never be committed.
-Terraform state remains sensitive.
+Terraform state remains sensitive. The workspace uses local execution mode:
+HCP Terraform stores and locks state, while GitHub Actions executes Terraform
+and authenticates to Azure using OIDC.
 
 ## Secrets and identities
 
@@ -143,7 +145,6 @@ The registration state still needs to be recorded for:
 - `Microsoft.Storage`;
 - `Microsoft.KeyVault`;
 - `Microsoft.ContainerRegistry`;
-- `Microsoft.Insights`;
 - `Microsoft.Network`.
 
 Missing providers must not be registered without first confirming the expected

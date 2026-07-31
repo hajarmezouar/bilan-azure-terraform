@@ -70,8 +70,10 @@ This approach still demonstrates:
 - deployment of a Spring Boot container;
 - automated application delivery;
 - reproducible infrastructure with Terraform;
-- separation between frontend, backend and data services;
-- centralized logs, metrics, traces and alerts.
+- separation between frontend, backend and data services.
+
+Centralized monitoring, traces and alerts are intentionally deferred to a
+later iteration.
 
 The trade-off is that Static Web Apps may require the backend to expose a public
 HTTPS origin. This exception will be documented and mitigated with:
@@ -116,6 +118,10 @@ The HCP Terraform organization and workspace must be created before the first
 infrastructure deployment. The Azure subscription and tenant identifiers are
 supplied through local environment variables or CI/CD configuration and are
 intentionally not published in this repository.
+
+The HCP Terraform workspace uses local execution mode: HCP Terraform stores and
+locks state, while GitHub Actions runs `terraform plan` and `terraform apply`
+and authenticates to Azure through OIDC.
 
 ## Secrets management
 
@@ -228,6 +234,35 @@ The project requires:
 - Docker for testing the backend container;
 - an Azure account with access to the assigned resources.
 
+## Local validation
+
+The supplied Spring Boot backend and Angular frontend were launched together
+successfully before the infrastructure implementation. PostgreSQL, Redis and
+Azurite were provided locally through Docker Compose.
+
+The validation evidence and commands are recorded in:
+
+- [Local application validation](docs/local-validation.md)
+
+## Signed commits
+
+Project commits must be cryptographically signed. Git is configured to sign
+commits with the contributor's registered SSH signing key:
+
+```text
+git config --global gpg.format ssh
+git config --global user.signingkey ~/.ssh/id_ed25519.pub
+git config --global commit.gpgsign true
+```
+
+Create commits with:
+
+```text
+git commit -S -m "<type>: <description>"
+```
+
+After pushing, GitHub must display the commit as `Verified`.
+
 ## Deployment
 
 Deployment instructions will be added after the Terraform configuration has
@@ -236,11 +271,11 @@ been implemented and validated.
 The expected workflow will be:
 
 ```text
-terraform init
-terraform fmt -check
-terraform validate
-terraform plan -var-file=environments/nonprod/terraform.tfvars
-terraform apply -var-file=environments/nonprod/terraform.tfvars
+terraform -chdir=terraform/environments/nonprod init
+terraform -chdir=terraform/environments/nonprod fmt -check
+terraform -chdir=terraform/environments/nonprod validate
+terraform -chdir=terraform/environments/nonprod plan
+terraform -chdir=terraform/environments/nonprod apply
 ```
 
 Do not run `terraform apply` until the shared-resource identifiers, permissions,

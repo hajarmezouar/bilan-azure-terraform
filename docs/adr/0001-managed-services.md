@@ -29,8 +29,10 @@ Use Azure managed services:
 - PostgreSQL Flexible Server;
 - Azure Managed Redis;
 - Azure Storage;
-- Azure Key Vault;
-- Application Insights, Log Analytics and Azure Monitor.
+- Azure Key Vault.
+
+Application Insights, Log Analytics and Azure Monitor are deferred to a later
+iteration and are not part of the initial deployment.
 
 ## Alternatives considered
 
@@ -50,7 +52,7 @@ The managed-services option better matches the available implementation time.
 - reduced operational complexity;
 - faster implementation;
 - built-in scaling, TLS and platform maintenance;
-- native integration with GitHub Actions and Azure Monitor;
+- native integration with GitHub Actions;
 - the Spring Boot backend remains containerized.
 
 ### Negative

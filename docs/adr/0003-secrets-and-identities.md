@@ -20,7 +20,7 @@ would create a security and rotation risk.
 - grant that identity the `Key Vault Secrets User` role on the vault;
 - use GitHub Actions OpenID Connect federation for Azure authentication;
 - do not store an Azure client secret in GitHub;
-- store Terraform state in a protected remote Azure Storage backend;
+- store and lock Terraform state in HCP Terraform;
 - mark sensitive Terraform variables and outputs as `sensitive`;
 - never commit `.tfvars` files containing secret values.
 
