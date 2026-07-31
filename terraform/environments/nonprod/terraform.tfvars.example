@@ -9,3 +9,6 @@ shared_service_plan_resource_group_name = "rg-shared-prf2026"
 vnet_address_space                    = "10.50.0.0/16"
 app_service_integration_subnet_prefix = "10.50.1.0/24"
 private_endpoint_subnet_prefix        = "10.50.2.0/24"
+
+container_registry_name = "acrhmezouarquiznonprod"
+container_registry_sku  = "Basic"

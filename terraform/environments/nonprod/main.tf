@@ -37,3 +37,13 @@ module "network" {
   private_endpoint_subnet_prefix        = var.private_endpoint_subnet_prefix
   tags                                  = var.common_tags
 }
+
+module "container_registry" {
+  source = "../../modules/container-registry"
+
+  name                = var.container_registry_name
+  resource_group_name = data.azurerm_resource_group.project.name
+  location            = data.azurerm_resource_group.project.location
+  sku                 = var.container_registry_sku
+  tags                = var.common_tags
+}

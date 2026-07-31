@@ -40,3 +40,12 @@ output "network" {
     private_dns_zone_ids              = module.network.private_dns_zone_ids
   }
 }
+
+output "container_registry" {
+  description = "Container registry used for immutable backend images."
+  value = {
+    id           = module.container_registry.id
+    name         = module.container_registry.name
+    login_server = module.container_registry.login_server
+  }
+}

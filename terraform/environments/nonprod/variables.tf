@@ -46,6 +46,18 @@ variable "private_endpoint_subnet_prefix" {
   default     = "10.50.2.0/24"
 }
 
+variable "container_registry_name" {
+  description = "Globally unique name of the non-production container registry."
+  type        = string
+  default     = "acrhmezouarquiznonprod"
+}
+
+variable "container_registry_sku" {
+  description = "Cost tier of the non-production container registry."
+  type        = string
+  default     = "Basic"
+}
+
 variable "common_tags" {
   description = "Tags applied to resources managed by this project."
   type        = map(string)

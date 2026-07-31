@@ -29,6 +29,9 @@ terraform.rc
 # HCP Terraform credentials
 credentials.tfrc.json
 
+# Local Azure preparation and validation plan
+.azure/deployment-plan.md
+
 # OS and editor files
 .DS_Store
 Thumbs.db

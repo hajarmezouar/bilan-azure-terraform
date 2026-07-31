@@ -173,6 +173,12 @@ The reusable network module prepares:
 - private DNS zones and VNet links for PostgreSQL, Managed Redis, Blob Storage
   and Key Vault.
 
+The reusable Container Registry module prepares the private image repository
+`acrhmezouarquiznonprod` on the cost-optimized Basic tier. Its administrator
+account and anonymous image pulls are disabled. A later Web App module will
+grant its managed identity `AcrPull`; the CI/CD identity will receive
+`AcrPush` through OIDC when that identity is configured.
+
 Private Endpoints themselves are created later by their respective service
 modules. The remaining service modules will be added incrementally in separate,
 reviewable commits.
