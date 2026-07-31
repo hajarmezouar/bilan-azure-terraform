@@ -19,11 +19,11 @@ Use HCP Terraform to store the non-production Terraform state and provide state
 locking.
 
 - service: `app.terraform.io`;
-- planned workspace: `azure-quiz-nonprod`;
+- organization: `hmezouar-azure-quiz`;
+- workspace: `azure-quiz-nonprod`;
 - workspace execution mode: local;
 - authentication tokens are never committed;
-- the organization name is configured after the HCP Terraform account is
-  created;
+- the organization and workspace names are configured in the Terraform root;
 - Azure authentication uses short-lived federated credentials rather than a
   permanent client secret.
 

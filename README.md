@@ -112,11 +112,14 @@ Confirmed deployment context:
   `rg-shared-prf2026`;
 - the shared plan is referenced but is not managed by this project.
 - remote state and state locking: HCP Terraform (`app.terraform.io`);
-- planned HCP Terraform workspace: `azure-quiz-nonprod`.
+- HCP Terraform organization: `hmezouar-azure-quiz`;
+- HCP Terraform workspace: `azure-quiz-nonprod`;
+- workspace execution mode: local.
 
-The HCP Terraform organization and workspace must be created before the first
-infrastructure deployment. The Azure subscription and tenant identifiers are
-supplied through local environment variables or CI/CD configuration and are
+The HCP Terraform organization and workspace have been created. Local HCP
+authentication is configured with `terraform login app.terraform.io`. Its token
+is stored outside this repository. Azure subscription and tenant identifiers
+are supplied by the active Azure CLI session or CI/CD configuration and are
 intentionally not published in this repository.
 
 The HCP Terraform workspace uses local execution mode: HCP Terraform stores and
@@ -160,8 +163,9 @@ Identifiers required by CI/CD are configured outside the source code:
         └── web-app/
 ```
 
-This structure will be created incrementally as the infrastructure is
-implemented.
+The `terraform/environments/nonprod` root is now connected to HCP Terraform.
+The service modules will be added incrementally in separate, reviewable
+commits.
 
 ## Common tags
 
@@ -221,7 +225,6 @@ Before implementing or deploying the infrastructure, confirm:
 - the permitted PostgreSQL and Azure Managed Redis SKUs;
 - permission to create Azure Container Registry;
 - availability of private networking features;
-- creation of the HCP Terraform organization and non-production workspace;
 - the identity and permissions used by GitHub Actions.
 
 ## Local tools
@@ -265,21 +268,33 @@ After pushing, GitHub must display the commit as `Verified`.
 
 ## Deployment
 
-Deployment instructions will be added after the Terraform configuration has
-been implemented and validated.
-
-The expected workflow will be:
+Authenticate locally before the first initialization:
 
 ```text
-terraform -chdir=terraform/environments/nonprod init
-terraform -chdir=terraform/environments/nonprod fmt -check
-terraform -chdir=terraform/environments/nonprod validate
-terraform -chdir=terraform/environments/nonprod plan
-terraform -chdir=terraform/environments/nonprod apply
+az login
+terraform login app.terraform.io
 ```
 
-Do not run `terraform apply` until the shared-resource identifiers, permissions,
-region, quotas and remote state backend have been confirmed.
+The current foundation workflow is:
+
+```text
+make terraform-check
+make terraform-plan
+```
+
+From WSL, when PowerShell 7 is exposed as `powershell.exe`:
+
+```text
+make POWERSHELL=powershell.exe terraform-check
+make POWERSHELL=powershell.exe terraform-plan
+```
+
+The script reads the subscription ID from the active Azure CLI session. The
+current foundation only reads the existing resource group and shared App
+Service Plan. No apply target is provided yet.
+
+Do not run `terraform apply` until resource permissions, regional availability,
+quotas and the complete plan have been confirmed.
 
 ## Related repositories
 

@@ -69,18 +69,20 @@ hard-coding the shared plan name in the deployment workflow.
 ## Terraform remote state
 
 Following the architecture review, HCP Terraform (`app.terraform.io`) was
-selected for remote state and state locking. The planned workspace is
-`azure-quiz-nonprod`.
+selected for remote state and state locking:
+
+- organization: `hmezouar-azure-quiz`;
+- workspace: `azure-quiz-nonprod`;
+- execution mode: local.
+
+The organization and workspace have been created, and local authentication was
+configured with `terraform login app.terraform.io`. Authentication tokens must
+never be committed. Terraform state remains sensitive. HCP Terraform stores
+and locks state, while the local workstation or GitHub Actions executes
+Terraform. GitHub Actions will authenticate to Azure using OIDC.
 
 The previously designed Azure Storage Account `sthmezouartfstate` was not
-deployed. Its bootstrap configuration is superseded by the HCP Terraform
-decision.
-
-The HCP Terraform organization and workspace must be created before the first
-infrastructure deployment. Authentication tokens must never be committed.
-Terraform state remains sensitive. The workspace uses local execution mode:
-HCP Terraform stores and locks state, while GitHub Actions executes Terraform
-and authenticates to Azure using OIDC.
+deployed. Its obsolete bootstrap configuration has been removed.
 
 ## Secrets and identities
 
@@ -125,8 +127,7 @@ and CI/CD.
 
 The following items must be confirmed before the first deployment:
 
-- create the HCP Terraform organization and `azure-quiz-nonprod` workspace;
-- configure HCP Terraform authentication for local and CI/CD execution;
+- configure protected HCP Terraform authentication for CI/CD execution;
 - permission to create Azure Container Registry;
 - PostgreSQL Flexible Server SKU and regional availability;
 - Azure Managed Redis SKU and regional availability;
