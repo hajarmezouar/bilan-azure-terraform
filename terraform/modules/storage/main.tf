@@ -1,41 +1,69 @@
-resource "azurerm_storage_account" "this" {
-  name                     = var.name
-  resource_group_name      = var.resource_group_name
-  location                 = var.location
-  account_tier             = "Standard"
-  account_replication_type = var.replication_type
-  account_kind             = "StorageV2"
-  access_tier              = var.access_tier
+resource "azapi_resource" "this" {
+  type      = "Microsoft.Storage/storageAccounts@2023-05-01"
+  parent_id = var.resource_group_id
+  name      = var.name
+  location  = var.location
 
-  https_traffic_only_enabled       = true
-  min_tls_version                  = "TLS1_2"
-  public_network_access_enabled    = false
-  allow_nested_items_to_be_public  = false
-  shared_access_key_enabled        = false
-  default_to_oauth_authentication  = true
-  cross_tenant_replication_enabled = false
-  local_user_enabled               = false
-
-  blob_properties {
-    versioning_enabled  = true
-    change_feed_enabled = true
-
-    delete_retention_policy { days = 7 }
-    container_delete_retention_policy { days = 7 }
-  }
-
-  network_rules {
-    default_action = "Deny"
-    bypass         = ["AzureServices"]
+  body = {
+    kind = "StorageV2"
+    sku = {
+      name = "Standard_${var.replication_type}"
+    }
+    properties = {
+      accessTier                   = var.access_tier
+      allowBlobPublicAccess        = false
+      allowCrossTenantReplication  = false
+      allowSharedKeyAccess         = false
+      defaultToOAuthAuthentication = true
+      isLocalUserEnabled           = false
+      minimumTlsVersion            = "TLS1_2"
+      publicNetworkAccess          = "Disabled"
+      supportsHttpsTrafficOnly     = true
+      networkAcls = {
+        bypass              = "AzureServices"
+        defaultAction       = "Deny"
+        ipRules             = []
+        virtualNetworkRules = []
+      }
+    }
   }
 
   tags = merge(var.tags, { component = "application-storage" })
 }
 
-resource "azurerm_storage_container" "application_files" {
-  name                  = var.container_name
-  storage_account_id    = azurerm_storage_account.this.id
-  container_access_type = "private"
+resource "azapi_resource" "blob_service" {
+  type      = "Microsoft.Storage/storageAccounts/blobServices@2023-05-01"
+  parent_id = azapi_resource.this.id
+  name      = "default"
+
+  body = {
+    properties = {
+      changeFeed = {
+        enabled = true
+      }
+      containerDeleteRetentionPolicy = {
+        enabled = true
+        days    = 7
+      }
+      deleteRetentionPolicy = {
+        enabled = true
+        days    = 7
+      }
+      isVersioningEnabled = true
+    }
+  }
+}
+
+resource "azapi_resource" "application_files" {
+  type      = "Microsoft.Storage/storageAccounts/blobServices/containers@2023-05-01"
+  parent_id = azapi_resource.blob_service.id
+  name      = var.container_name
+
+  body = {
+    properties = {
+      publicAccess = "None"
+    }
+  }
 }
 
 resource "azurerm_private_endpoint" "blob" {
@@ -46,7 +74,7 @@ resource "azurerm_private_endpoint" "blob" {
 
   private_service_connection {
     name                           = "psc-${var.name}-blob"
-    private_connection_resource_id = azurerm_storage_account.this.id
+    private_connection_resource_id = azapi_resource.this.id
     is_manual_connection           = false
     subresource_names              = ["blob"]
   }
@@ -60,7 +88,7 @@ resource "azurerm_private_endpoint" "blob" {
 }
 
 resource "azurerm_role_assignment" "backend_blob_data_contributor" {
-  scope                            = azurerm_storage_account.this.id
+  scope                            = azapi_resource.this.id
   role_definition_name             = "Storage Blob Data Contributor"
   principal_id                     = var.backend_principal_id
   principal_type                   = "ServicePrincipal"
