@@ -60,7 +60,7 @@ resource "azapi_resource" "access_key" {
   }
 
   sensitive_body_version = {
-    "properties.value" = "1"
+    "properties.value" = tostring(var.access_key_secret_version)
   }
 
   tags = merge(var.tags, {

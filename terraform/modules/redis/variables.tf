@@ -25,6 +25,17 @@ variable "access_key_secret_name" {
   default     = "redis-access-key"
 }
 
+variable "access_key_secret_version" {
+  description = "Version used to republish the current Redis access key to Key Vault after recovery or rotation."
+  type        = number
+  default     = 2
+
+  validation {
+    condition     = var.access_key_secret_version >= 1 && floor(var.access_key_secret_version) == var.access_key_secret_version
+    error_message = "The Redis access-key secret version must be a positive integer."
+  }
+}
+
 variable "key_vault_id" {
   description = "Resource ID of the Key Vault receiving the Redis access key."
   type        = string
