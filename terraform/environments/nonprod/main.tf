@@ -145,3 +145,16 @@ module "storage" {
   backend_principal_id       = module.web_app.principal_id
   tags                       = var.common_tags
 }
+
+module "github_actions_identity" {
+  source = "../../modules/github-actions-identity"
+
+  name                  = var.github_actions_identity_name
+  resource_group_name   = data.azurerm_resource_group.project.name
+  location              = data.azurerm_resource_group.project.location
+  github_repository     = var.backend_github_repository
+  github_environment    = var.backend_github_environment
+  container_registry_id = module.container_registry.id
+  web_app_id            = module.web_app.id
+  tags                  = var.common_tags
+}

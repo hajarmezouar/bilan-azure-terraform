@@ -14,12 +14,10 @@ The application consists of:
 
 ## Project status
 
-The project is currently in the architecture and infrastructure preparation
-phase. The architecture was designed before the Terraform implementation, as
-required by the project specification.
-
-No resource should be considered deployed until a successful Terraform plan,
-apply and application smoke test have been recorded.
+The managed-services infrastructure is deployed in the non-production Azure
+environment and the final Terraform plan reports no drift. Backend application
+delivery is prepared through GitHub Actions and Azure workload identity
+federation.
 
 ## Architecture
 
@@ -108,7 +106,7 @@ Confirmed deployment context:
 - environment: non-production;
 - resource group: `hmezouarRG`;
 - region: `francecentral`;
-- shared Linux App Service Plan: `plan-npr-prf2026` (`S3`) in
+- shared Linux App Service Plan: `plan-npr-prf2026` (`B3`) in
   `rg-shared-prf2026`;
 - the shared plan is referenced but is not managed by this project.
 - remote state and state locking: HCP Terraform (`app.terraform.io`);
@@ -175,12 +173,12 @@ The reusable network module prepares:
 
 The reusable Container Registry module prepares the private image repository
 `acrhmezouarquiznonprod` on the cost-optimized Basic tier. Its administrator
-account and anonymous image pulls are disabled. A later Web App module will
-grant its managed identity `AcrPull`; the CI/CD identity will receive
-`AcrPush` through OIDC when that identity is configured.
+account and anonymous image pulls are disabled. The Web App identity receives
+`AcrPull`; the dedicated GitHub Actions identity receives `AcrPush` through
+OIDC.
 
 The reusable Web App module prepares the containerized Spring Boot backend on
-the trainer-managed Linux S3 plan. It configures port `8080`, the `prod`
+the trainer-managed Linux B3 plan. It configures port `8080`, the `prod`
 profile, `/actuator/health`, HTTPS-only access, Always On, VNet integration and
 a system-assigned managed identity. That identity receives only `AcrPull` on
 the project registry; no registry password is created. Database, cache,
@@ -220,8 +218,16 @@ The Static Web App module creates the Free `swa-hmezouar-quiz-np` frontend in
 `francecentral`. Terraform exports only its public hostname and never its
 deployment token. Building and uploading Angular remain CI/CD responsibilities.
 
-All managed-service components shown in the architecture are now represented
-by reusable Terraform modules and can be reviewed before the first deployment.
+The `github-actions-identity` module creates a user-assigned identity, an exact
+federated credential for
+`repo:hajarmezouar/bilan-azure-backend:environment:nonprod`, and two
+resource-scoped roles: `AcrPush` on the application registry and
+`Website Contributor` on the backend Web App. It creates no client secret.
+
+Terraform owns the Web App infrastructure and bootstrap image configuration.
+The backend pipeline owns the deployed immutable image tag, which is therefore
+excluded from Terraform drift reconciliation while all other Web App settings
+remain managed.
 
 ## Common tags
 
@@ -331,11 +337,12 @@ az login
 terraform login app.terraform.io
 ```
 
-The current foundation workflow is:
+The infrastructure workflow is:
 
 ```text
 make terraform-check
 make terraform-plan
+make terraform-apply
 ```
 
 From WSL, when PowerShell 7 is exposed as `powershell.exe`:
@@ -345,12 +352,17 @@ make POWERSHELL=powershell.exe terraform-check
 make POWERSHELL=powershell.exe terraform-plan
 ```
 
-The script reads the subscription ID from the active Azure CLI session. The
-current foundation only reads the existing resource group and shared App
-Service Plan. No apply target is provided yet.
+The script reads the subscription ID from the active Azure CLI session. After
+applying the GitHub identity module, display the backend repository identifiers
+with:
 
-Do not run `terraform apply` until resource permissions, regional availability,
-quotas and the complete plan have been confirmed.
+```text
+terraform -chdir=terraform/environments/nonprod output -json backend_github_actions
+```
+
+Copy those identifiers to the protected GitHub environment `nonprod`. Never
+commit HCP Terraform credentials, Azure tokens, publish profiles or registry
+passwords.
 
 ## Related repositories
 
