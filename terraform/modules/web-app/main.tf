@@ -44,6 +44,12 @@ resource "azurerm_linux_web_app" "this" {
   tags = merge(var.tags, {
     component = "backend"
   })
+
+  lifecycle {
+    ignore_changes = [
+      site_config[0].application_stack[0].docker_image_name
+    ]
+  }
 }
 
 resource "azurerm_role_assignment" "container_registry_pull" {

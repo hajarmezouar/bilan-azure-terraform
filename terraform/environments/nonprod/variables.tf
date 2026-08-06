@@ -76,6 +76,24 @@ variable "backend_container_image_tag" {
   default     = "latest"
 }
 
+variable "github_actions_identity_name" {
+  description = "Name of the managed identity used by the backend GitHub Actions workflow."
+  type        = string
+  default     = "id-github-azure-quiz-backend-nonprod"
+}
+
+variable "backend_github_repository" {
+  description = "Backend GitHub repository trusted by the Azure federated credential."
+  type        = string
+  default     = "hajarmezouar/bilan-azure-backend"
+}
+
+variable "backend_github_environment" {
+  description = "Protected GitHub environment allowed to deploy the backend."
+  type        = string
+  default     = "nonprod"
+}
+
 variable "key_vault_name" {
   description = "Globally unique name of the non-production Key Vault."
   type        = string

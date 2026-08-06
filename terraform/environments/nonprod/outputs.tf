@@ -112,3 +112,16 @@ output "frontend_static_web_app" {
     https_url         = module.static_web_app.https_url
   }
 }
+
+output "backend_github_actions" {
+  description = "Non-secret values required by the backend GitHub environment."
+  value = {
+    client_id           = module.github_actions_identity.client_id
+    tenant_id           = module.github_actions_identity.tenant_id
+    subscription_id     = nonsensitive(var.subscription_id)
+    resource_group_name = data.azurerm_resource_group.project.name
+    container_registry  = module.container_registry.name
+    web_app_name        = module.web_app.name
+    federated_subject   = module.github_actions_identity.federated_subject
+  }
+}
