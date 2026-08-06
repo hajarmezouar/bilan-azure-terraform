@@ -152,7 +152,7 @@ module "github_actions_identity" {
   name                  = var.github_actions_identity_name
   resource_group_name   = data.azurerm_resource_group.project.name
   location              = data.azurerm_resource_group.project.location
-  github_repository     = var.backend_github_repository
+  github_oidc_subject   = var.backend_github_oidc_subject
   github_environment    = var.backend_github_environment
   container_registry_id = module.container_registry.id
   web_app_id            = module.web_app.id

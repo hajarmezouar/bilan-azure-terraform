@@ -82,10 +82,10 @@ variable "github_actions_identity_name" {
   default     = "id-github-azure-quiz-backend-nonprod"
 }
 
-variable "backend_github_repository" {
-  description = "Backend GitHub repository trusted by the Azure federated credential."
+variable "backend_github_oidc_subject" {
+  description = "Exact OIDC subject emitted by GitHub for the backend non-production environment."
   type        = string
-  default     = "hajarmezouar/bilan-azure-backend"
+  default     = "repo:hajarmezouar@91194498/bilan-azure-backend@1316988594:environment:nonprod"
 }
 
 variable "backend_github_environment" {

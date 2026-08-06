@@ -13,13 +13,13 @@ variable "location" {
   type        = string
 }
 
-variable "github_repository" {
-  description = "GitHub repository in owner/name format."
+variable "github_oidc_subject" {
+  description = "Exact subject claim emitted by GitHub Actions for the trusted environment."
   type        = string
 
   validation {
-    condition     = can(regex("^[^/]+/[^/]+$", var.github_repository))
-    error_message = "The GitHub repository must use the owner/name format."
+    condition     = can(regex("^repo:[^/]+/[^:]+:environment:[^:]+$", var.github_oidc_subject))
+    error_message = "The GitHub OIDC subject must use repo:<owner>/<repository>:environment:<environment>."
   }
 }
 

@@ -219,8 +219,8 @@ The Static Web App module creates the Free `swa-hmezouar-quiz-np` frontend in
 deployment token. Building and uploading Angular remain CI/CD responsibilities.
 
 The `github-actions-identity` module creates a user-assigned identity, an exact
-federated credential for
-`repo:hajarmezouar/bilan-azure-backend:environment:nonprod`, and two
+federated credential for the OIDC subject emitted by the organization's GitHub
+identity mode, and two
 resource-scoped roles: `AcrPush` on the application registry and
 `Website Contributor` on the backend Web App. It creates no client secret.
 
