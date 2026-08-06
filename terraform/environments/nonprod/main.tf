@@ -116,6 +116,7 @@ module "web_app" {
   container_image_repository      = var.backend_container_image_repository
   container_image_tag             = var.backend_container_image_tag
   app_settings = {
+    APP_CORS_ALLOWED_ORIGINS    = "https://${module.static_web_app.default_host_name}"
     SPRING_DATASOURCE_URL       = "jdbc:postgresql://${module.postgresql.fqdn}:5432/${module.postgresql.database_name}?sslmode=require"
     SPRING_DATASOURCE_USERNAME  = module.postgresql.administrator_login
     SPRING_DATASOURCE_PASSWORD  = "@Microsoft.KeyVault(VaultName=${module.key_vault.name};SecretName=${module.postgresql.password_secret_name})"
