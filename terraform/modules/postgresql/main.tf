@@ -13,7 +13,7 @@ resource "azurerm_postgresql_flexible_server" "this" {
 
   administrator_login               = var.administrator_login
   administrator_password_wo         = ephemeral.random_password.administrator.result
-  administrator_password_wo_version = 1
+  administrator_password_wo_version = var.administrator_password_version
 
   storage_mb                    = var.storage_mb
   auto_grow_enabled             = true
@@ -85,7 +85,7 @@ resource "azapi_resource" "administrator_password" {
   }
 
   sensitive_body_version = {
-    "properties.value" = "1"
+    "properties.value" = tostring(var.administrator_password_version)
   }
 
   tags = merge(var.tags, {

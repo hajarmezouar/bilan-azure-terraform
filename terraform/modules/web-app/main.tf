@@ -19,6 +19,7 @@ resource "azurerm_linux_web_app" "this" {
   app_settings = merge(var.app_settings, {
     SPRING_PROFILES_ACTIVE              = "prod"
     WEBSITES_CONTAINER_START_TIME_LIMIT = "600"
+    WEBSITES_ENABLE_APP_SERVICE_STORAGE = "false"
     WEBSITES_PORT                       = tostring(var.container_port)
   })
 

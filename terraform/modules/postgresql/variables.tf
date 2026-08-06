@@ -54,6 +54,17 @@ variable "administrator_login" {
   default     = "quizadmin"
 }
 
+variable "administrator_password_version" {
+  description = "Rotation version shared by PostgreSQL and its Key Vault secret. Increment to rotate both atomically."
+  type        = number
+  default     = 2
+
+  validation {
+    condition     = var.administrator_password_version >= 1 && floor(var.administrator_password_version) == var.administrator_password_version
+    error_message = "The PostgreSQL administrator password version must be a positive integer."
+  }
+}
+
 variable "password_secret_name" {
   description = "Key Vault secret name used for the PostgreSQL administrator password."
   type        = string

@@ -123,8 +123,8 @@ module "web_app" {
     REDIS_PORT                  = tostring(module.redis.port)
     REDIS_PASSWORD              = "@Microsoft.KeyVault(VaultName=${module.key_vault.name};SecretName=${module.redis.access_key_secret_name})"
     REDIS_SSL_ENABLED           = "true"
-    AZURE_STORAGE_ACCOUNT       = var.storage_account_name
-    AZURE_STORAGE_CONTAINER     = var.storage_container_name
+    STORAGE_ACCOUNT_NAME        = var.storage_account_name
+    STORAGE_CONTAINER_NAME      = var.storage_container_name
     AZURE_STORAGE_BLOB_ENDPOINT = "https://${var.storage_account_name}.blob.core.windows.net/"
   }
   tags = var.common_tags
