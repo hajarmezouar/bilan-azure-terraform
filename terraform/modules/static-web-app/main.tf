@@ -9,4 +9,10 @@ resource "azurerm_static_web_app" "this" {
   preview_environments_enabled       = true
 
   tags = merge(var.tags, { component = "frontend" })
+
+  lifecycle {
+    # The frontend delivery workflow owns the GitHub repository connection.
+    # Preserve the metadata written by Azure instead of removing it from IaC.
+    ignore_changes = [repository_url, repository_branch]
+  }
 }
