@@ -127,10 +127,18 @@ Configure `TF_API_TOKEN` as a GitHub **environment secret**. It is the HCP Terra
 The Azure federated credential must trust the following GitHub subject because the deployment job uses the protected environment:
 
 ```text
-repo:hajarmezouar/bilan-azure-terraform:environment:nonprod
+repo:hajarmezouar@91194498/bilan-azure-terraform@1316992042:environment:nonprod
 ```
 
+This organization uses GitHub OIDC subject customization with immutable owner and repository IDs. The federated credential must therefore use the exact subject emitted in the workflow log, not the shorter default GitHub subject format.
+
 Protect `nonprod` with required reviewers when the GitHub plan permits it. This creates a manual approval gate before the job can obtain credentials, run the plan and modify Azure. No Azure client secret is stored in GitHub.
+
+### Manual infrastructure destruction
+
+The `Terraform Destroy` workflow is intentionally available only through `workflow_dispatch`. It never runs on a push or Pull Request. To use it, open **Actions > Terraform Destroy > Run workflow** and enter exactly `destroy-nonprod`.
+
+The workflow validates the confirmation, enters the protected `nonprod` environment, creates a saved destruction plan, publishes that plan in the workflow summary and applies the exact reviewed plan. Deleting the `hmezouarRG` resource group itself is outside this workflow because the group is an existing project prerequisite rather than a Terraform-managed resource.
 
 ## Continuous delivery
 
