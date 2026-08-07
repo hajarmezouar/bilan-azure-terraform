@@ -1,0 +1,100 @@
+name: Terraform
+
+on:
+  pull_request:
+    paths:
+      - "terraform/**"
+      - ".github/workflows/terraform.yml"
+  push:
+    branches:
+      - main
+    paths:
+      - "terraform/**"
+      - ".github/workflows/terraform.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: terraform-nonprod
+  cancel-in-progress: false
+
+env:
+  TF_IN_AUTOMATION: "true"
+  TF_INPUT: "false"
+  TF_WORKING_DIR: terraform/environments/nonprod
+  TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
+
+jobs:
+  validate:
+    name: Terraform validate
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.15.8"
+
+      - name: Check formatting
+        run: terraform fmt -check -recursive terraform
+
+      - name: Initialize without remote state
+        run: terraform -chdir="$TF_WORKING_DIR" init -backend=false -input=false
+
+      - name: Validate configuration
+        run: terraform -chdir="$TF_WORKING_DIR" validate
+
+  deploy:
+    name: Terraform plan and apply
+    if: github.event_name != 'pull_request'
+    needs: validate
+    runs-on: ubuntu-latest
+    environment: nonprod
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.15.8"
+
+      - name: Sign in to Azure with OIDC
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Initialize HCP Terraform
+        run: terraform -chdir="$TF_WORKING_DIR" init -input=false
+
+      - name: Create reviewed plan
+        run: |
+          terraform -chdir="$TF_WORKING_DIR" plan \
+            -input=false \
+            -var="subscription_id=${{ vars.AZURE_SUBSCRIPTION_ID }}" \
+            -out=nonprod.tfplan
+
+      - name: Add plan to workflow summary
+        run: |
+          echo '## Terraform plan - nonprod' >> "$GITHUB_STEP_SUMMARY"
+          echo '```terraform' >> "$GITHUB_STEP_SUMMARY"
+          terraform -chdir="$TF_WORKING_DIR" show -no-color nonprod.tfplan >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Apply reviewed plan
+        run: terraform -chdir="$TF_WORKING_DIR" apply -input=false nonprod.tfplan
+
+      - name: Show Terraform outputs
+        run: terraform -chdir="$TF_WORKING_DIR" output

@@ -106,6 +106,32 @@ make terraform-apply
 
 `terraform-apply` applies only the previously saved and reviewed plan. The subscription identifier is read from the active Azure CLI session and is not published in this repository.
 
+### Terraform in GitHub Actions
+
+The `Terraform` workflow provides the infrastructure CI/CD evidence required by the project:
+
+1. Pull Requests run `terraform fmt -check`, `terraform init -backend=false` and `terraform validate` without Azure deployment credentials.
+2. A push to `main`, or a manual run, enters the protected GitHub environment `nonprod`.
+3. GitHub Actions authenticates to Azure with OIDC and to HCP Terraform with an API token.
+4. The workflow creates and displays a saved Terraform plan.
+5. It applies that exact saved plan and then displays the Terraform outputs.
+
+Configure the following GitHub **environment variables** on `nonprod`:
+
+- `AZURE_CLIENT_ID`: client ID of the OIDC-federated Terraform deployment identity;
+- `AZURE_TENANT_ID`: Microsoft Entra tenant ID;
+- `AZURE_SUBSCRIPTION_ID`: target Azure subscription ID.
+
+Configure `TF_API_TOKEN` as a GitHub **environment secret**. It is the HCP Terraform team or user token used to access organization `hmezouar-azure-quiz` and workspace `azure-quiz-nonprod`.
+
+The Azure federated credential must trust the following GitHub subject because the deployment job uses the protected environment:
+
+```text
+repo:hajarmezouar/bilan-azure-terraform:environment:nonprod
+```
+
+Protect `nonprod` with required reviewers when the GitHub plan permits it. This creates a manual approval gate before the job can obtain credentials, run the plan and modify Azure. No Azure client secret is stored in GitHub.
+
 ## Continuous delivery
 
 Terraform creates the platform. The application repositories then deliver their artifacts:
