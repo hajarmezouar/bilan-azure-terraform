@@ -11,21 +11,20 @@ output "name_prefix" {
 output "resource_group" {
   description = "Existing project resource group verified by Terraform."
   value = {
-    id       = data.azurerm_resource_group.project.id
-    name     = data.azurerm_resource_group.project.name
-    location = data.azurerm_resource_group.project.location
+    id       = azurerm_resource_group.project.id
+    name     = azurerm_resource_group.project.name
+    location = azurerm_resource_group.project.location
   }
 }
 
-output "shared_service_plan" {
-  description = "Trainer-managed App Service Plan referenced by the backend."
+output "service_plan" {
+  description = "Production App Service Plan created by Terraform."
   value = {
-    id             = data.azurerm_service_plan.shared.id
-    name           = data.azurerm_service_plan.shared.name
-    resource_group = var.shared_service_plan_resource_group_name
-    location       = data.azurerm_service_plan.shared.location
-    os_type        = data.azurerm_service_plan.shared.os_type
-    sku_name       = data.azurerm_service_plan.shared.sku_name
+    id       = azurerm_service_plan.app.id
+    name     = azurerm_service_plan.app.name
+    location = azurerm_service_plan.app.location
+    os_type  = azurerm_service_plan.app.os_type
+    sku_name = azurerm_service_plan.app.sku_name
   }
 }
 
@@ -119,7 +118,7 @@ output "backend_github_actions" {
     client_id           = module.github_actions_identity.client_id
     tenant_id           = module.github_actions_identity.tenant_id
     subscription_id     = nonsensitive(var.subscription_id)
-    resource_group_name = data.azurerm_resource_group.project.name
+    resource_group_name = azurerm_resource_group.project.name
     container_registry  = module.container_registry.name
     web_app_name        = module.web_app.name
     federated_subject   = module.github_actions_identity.federated_subject

@@ -16,8 +16,9 @@ resource "azurerm_linux_web_app" "this" {
     type = "SystemAssigned"
   }
 
-  app_settings = merge(var.app_settings, {
-    SPRING_PROFILES_ACTIVE              = "prod"
+  app_settings = merge(var.app_settings, var.spring_profiles_active == null ? {} : {
+    SPRING_PROFILES_ACTIVE = var.spring_profiles_active
+    }, {
     WEBSITES_CONTAINER_START_TIME_LIMIT = "600"
     WEBSITES_ENABLE_APP_SERVICE_STORAGE = "false"
     WEBSITES_PORT                       = tostring(var.container_port)
@@ -43,7 +44,7 @@ resource "azurerm_linux_web_app" "this" {
   }
 
   tags = merge(var.tags, {
-    component = "backend"
+    component = var.component
   })
 
   lifecycle {
@@ -62,6 +63,7 @@ resource "azurerm_role_assignment" "container_registry_pull" {
 }
 
 resource "azurerm_role_assignment" "key_vault_secrets_user" {
+  count                            = var.assign_key_vault_access ? 1 : 0
   scope                            = var.key_vault_id
   role_definition_name             = "Key Vault Secrets User"
   principal_id                     = azurerm_linux_web_app.this.identity[0].principal_id

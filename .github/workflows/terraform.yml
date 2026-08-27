@@ -13,8 +13,15 @@ on:
       - ".github/workflows/terraform.yml"
   workflow_dispatch:
     inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        type: choice
+        options:
+          - nonprod
+          - prod
       confirmation:
-        description: "Enter apply-nonprod to apply the reviewed non-production plan"
+        description: "Enter apply-<environment> to authorize apply"
         required: true
         type: string
 
@@ -22,13 +29,13 @@ permissions:
   contents: read
 
 concurrency:
-  group: terraform-nonprod
+  group: terraform-${{ inputs.environment || 'nonprod' }}
   cancel-in-progress: false
 
 env:
   TF_IN_AUTOMATION: "true"
   TF_INPUT: "false"
-  TF_WORKING_DIR: terraform/environments/nonprod
+  TF_WORKING_DIR: terraform/environments/${{ inputs.environment || 'nonprod' }}
   TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
 
 jobs:
@@ -59,7 +66,7 @@ jobs:
     if: github.event_name != 'pull_request'
     needs: validate
     runs-on: ubuntu-latest
-    environment: nonprod
+    environment: ${{ inputs.environment || 'nonprod' }}
 
     permissions:
       contents: read
@@ -89,20 +96,20 @@ jobs:
           terraform -chdir="$TF_WORKING_DIR" plan \
             -input=false \
             -var="subscription_id=${{ vars.AZURE_SUBSCRIPTION_ID }}" \
-            -out=nonprod.tfplan
+            -out=${{ inputs.environment || 'nonprod' }}.tfplan
 
       - name: Add plan to workflow summary
         run: |
-          echo '## Terraform plan - nonprod' >> "$GITHUB_STEP_SUMMARY"
+          echo "## Terraform plan - ${{ inputs.environment || 'nonprod' }}" >> "$GITHUB_STEP_SUMMARY"
           echo '```terraform' >> "$GITHUB_STEP_SUMMARY"
-          terraform -chdir="$TF_WORKING_DIR" show -no-color nonprod.tfplan >> "$GITHUB_STEP_SUMMARY"
+          terraform -chdir="$TF_WORKING_DIR" show -no-color "${{ inputs.environment || 'nonprod' }}.tfplan" >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload reviewed plan
         uses: actions/upload-artifact@v4
         with:
-          name: terraform-plan-${{ github.sha }}
-          path: ${{ env.TF_WORKING_DIR }}/nonprod.tfplan
+          name: terraform-plan-${{ inputs.environment || 'nonprod' }}-${{ github.sha }}
+          path: ${{ env.TF_WORKING_DIR }}/${{ inputs.environment || 'nonprod' }}.tfplan
           if-no-files-found: error
           retention-days: 1
 
@@ -113,7 +120,7 @@ jobs:
       - validate
       - plan
     runs-on: ubuntu-latest
-    environment: nonprod
+    environment: ${{ inputs.environment || 'nonprod' }}
 
     permissions:
       contents: read
@@ -121,9 +128,9 @@ jobs:
 
     steps:
       - name: Validate manual confirmation
-        if: inputs.confirmation != 'apply-nonprod'
+        if: inputs.confirmation != format('apply-{0}', inputs.environment)
         run: |
-          echo "Invalid confirmation. Enter apply-nonprod to authorize the deployment."
+          echo "Invalid confirmation. Enter apply-${{ inputs.environment }} to authorize the deployment."
           exit 1
 
       - name: Checkout repository
@@ -147,11 +154,11 @@ jobs:
       - name: Download reviewed plan
         uses: actions/download-artifact@v4
         with:
-          name: terraform-plan-${{ github.sha }}
+          name: terraform-plan-${{ inputs.environment }}-${{ github.sha }}
           path: ${{ env.TF_WORKING_DIR }}
 
       - name: Apply reviewed plan
-        run: terraform -chdir="$TF_WORKING_DIR" apply -input=false nonprod.tfplan
+        run: terraform -chdir="$TF_WORKING_DIR" apply -input=false "${{ inputs.environment }}.tfplan"
 
       - name: Show Terraform outputs
         run: terraform -chdir="$TF_WORKING_DIR" output

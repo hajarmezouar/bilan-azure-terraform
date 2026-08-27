@@ -7,7 +7,7 @@ variable "subscription_id" {
 variable "resource_group_name" {
   description = "Existing resource group assigned to the project."
   type        = string
-  default     = "hmezouarRG"
+  default     = "rg-azure-quiz-prod"
 }
 
 variable "expected_location" {
@@ -16,16 +16,16 @@ variable "expected_location" {
   default     = "francecentral"
 }
 
-variable "shared_service_plan_name" {
-  description = "Trainer-managed Linux App Service Plan used by the backend."
+variable "service_plan_name" {
+  description = "Linux App Service Plan created for production."
   type        = string
-  default     = "plan-npr-prf2026"
+  default     = "asp-azure-quiz-prod"
 }
 
-variable "shared_service_plan_resource_group_name" {
-  description = "Resource group containing the trainer-managed App Service Plan."
+variable "service_plan_sku" {
+  description = "Production App Service Plan SKU."
   type        = string
-  default     = "rg-shared-prf2026"
+  default     = "B1"
 }
 
 variable "vnet_address_space" {
@@ -49,7 +49,7 @@ variable "private_endpoint_subnet_prefix" {
 variable "container_registry_name" {
   description = "Globally unique name of the non-production container registry."
   type        = string
-  default     = "acrhmezouarquiznonprod"
+  default     = "acrazurequizprod"
 }
 
 variable "container_registry_sku" {
@@ -61,7 +61,7 @@ variable "container_registry_sku" {
 variable "backend_web_app_name" {
   description = "Globally unique name of the non-production backend Web App."
   type        = string
-  default     = "app-azure-quiz-backend-nonprod"
+  default     = "app-azure-quiz-backend-prod"
 }
 
 variable "backend_container_image_repository" {
@@ -77,9 +77,9 @@ variable "backend_container_image_tag" {
 }
 
 variable "frontend_web_app_name" {
-  description = "Globally unique name of the non-production frontend Web App."
+  description = "Globally unique name of the production frontend Web App."
   type        = string
-  default     = "app-azure-quiz-frontend-nonprod"
+  default     = "app-azure-quiz-frontend-prod"
 }
 
 variable "frontend_container_image_repository" {
@@ -95,41 +95,41 @@ variable "frontend_container_image_tag" {
 variable "github_actions_identity_name" {
   description = "Name of the managed identity used by the backend GitHub Actions workflow."
   type        = string
-  default     = "id-github-azure-quiz-backend-nonprod"
+  default     = "id-github-azure-quiz-backend-prod"
 }
 
 variable "backend_github_oidc_subject" {
   description = "Exact OIDC subject emitted by GitHub for the backend non-production environment."
   type        = string
-  default     = "repo:hajarmezouar@91194498/bilan-azure-backend@1316988594:environment:nonprod"
+  default     = "repo:hajarmezouar@91194498/bilan-azure-backend@1316988594:environment:prod"
 }
 
 variable "backend_github_environment" {
   description = "Protected GitHub environment allowed to deploy the backend."
   type        = string
-  default     = "nonprod"
+  default     = "prod"
 }
 
 variable "frontend_github_actions_identity_name" {
   type    = string
-  default = "id-github-azure-quiz-frontend-nonprod"
+  default = "id-github-azure-quiz-frontend-prod"
 }
 
 variable "frontend_github_oidc_subject" {
   type    = string
-  default = "repo:hajarmezouar@91194498/bilan-azure-frontend@1316988294:environment:nonprod"
+  default = "repo:hajarmezouar@91194498/bilan-azure-frontend@1316988294:environment:prod"
 }
 
 variable "key_vault_name" {
   description = "Globally unique name of the non-production Key Vault."
   type        = string
-  default     = "kv-hmezouar-quiz-np"
+  default     = "kv-azure-quiz-prod"
 }
 
 variable "postgresql_server_name" {
   description = "Globally unique PostgreSQL Flexible Server name."
   type        = string
-  default     = "psql-hmezouar-quiz-np"
+  default     = "psql-azure-quiz-prod"
 }
 
 variable "postgresql_version" {
@@ -165,7 +165,7 @@ variable "postgresql_administrator_login" {
 variable "redis_name" {
   description = "Name of the non-production Azure Managed Redis instance."
   type        = string
-  default     = "redis-hmezouar-quiz-np"
+  default     = "redis-azure-quiz-prod"
 }
 
 variable "redis_sku_name" {
@@ -176,7 +176,7 @@ variable "redis_sku_name" {
 
 variable "storage_account_name" {
   type    = string
-  default = "sthmezouarquiznp"
+  default = "stazurequizprod"
 }
 
 variable "storage_replication_type" {
@@ -200,7 +200,7 @@ variable "common_tags" {
 
   default = {
     owner       = "hmezouar"
-    environment = "nonprod"
+    environment = "prod"
     project     = "azure-quiz"
     managed-by  = "terraform"
   }

@@ -41,6 +41,8 @@ variable "container_registry_login_server" {
 variable "key_vault_id" {
   description = "Resource ID of the Key Vault from which the Web App reads secrets."
   type        = string
+  default     = null
+  nullable    = true
 }
 
 variable "container_image_repository" {
@@ -81,6 +83,25 @@ variable "app_settings" {
   description = "Additional non-sensitive application settings. Sensitive values must use Key Vault references."
   type        = map(string)
   default     = {}
+}
+
+variable "component" {
+  description = "Component tag applied to the Web App."
+  type        = string
+  default     = "backend"
+}
+
+variable "spring_profiles_active" {
+  description = "Spring profile for a Spring Boot app; null for non-Spring containers."
+  type        = string
+  default     = "prod"
+  nullable    = true
+}
+
+variable "assign_key_vault_access" {
+  description = "Whether the Web App managed identity receives Key Vault Secrets User."
+  type        = bool
+  default     = true
 }
 
 variable "tags" {

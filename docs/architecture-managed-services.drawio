@@ -8,7 +8,7 @@
         <mxCell id="title" value="Azure Quiz - Managed Services Architecture" style="text;html=1;align=center;verticalAlign=middle;fontSize=28;fontStyle=1;fontColor=#172B4D;" vertex="1" parent="1">
           <mxGeometry x="500" y="15" width="1400" height="45" as="geometry"/>
         </mxCell>
-        <mxCell id="subtitle" value="Non-production | Angular frontend | Spring Boot container | Private access to data services" style="text;html=1;align=center;verticalAlign=middle;fontSize=16;fontColor=#5E6C84;" vertex="1" parent="1">
+        <mxCell id="subtitle" value="Non-production / production | Angular + Spring Boot containers | Private access to data services" style="text;html=1;align=center;verticalAlign=middle;fontSize=16;fontColor=#5E6C84;" vertex="1" parent="1">
           <mxGeometry x="500" y="60" width="1400" height="30" as="geometry"/>
         </mxCell>
 
@@ -28,7 +28,7 @@
           <mxGeometry x="1840" y="155" width="350" height="130" as="geometry"/>
         </mxCell>
 
-        <mxCell id="azure-zone" value="AZURE SUBSCRIPTION - NON-PRODUCTION - RESOURCE GROUP hmezouarRG" style="swimlane;html=1;startSize=42;rounded=1;strokeWidth=3;strokeColor=#0078D4;fillColor=#EFF8FF;fontStyle=1;fontSize=18;horizontal=1;" vertex="1" parent="1">
+        <mxCell id="azure-zone" value="AZURE SUBSCRIPTION - ENVIRONMENT (NONPROD / PROD) - RESOURCE GROUP" style="swimlane;html=1;startSize=42;rounded=1;strokeWidth=3;strokeColor=#0078D4;fillColor=#EFF8FF;fontStyle=1;fontSize=18;horizontal=1;" vertex="1" parent="1">
           <mxGeometry x="100" y="390" width="2200" height="820" as="geometry"/>
         </mxCell>
         <mxCell id="users" value="Internet users" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontStyle=1;fontSize=14;" vertex="1" parent="1">
@@ -41,10 +41,10 @@
         <mxCell id="swa-card" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFFFFF;strokeColor=#2563EB;strokeWidth=3;" vertex="1" parent="1">
           <mxGeometry x="185" y="565" width="280" height="125" as="geometry"/>
         </mxCell>
-        <mxCell id="swa-icon" value="" style="shape=image;html=1;imageAspect=0;aspect=fixed;image=img/lib/azure2/preview/Static_Apps.svg;" vertex="1" parent="swa-card">
+        <mxCell id="swa-icon" value="" style="shape=image;html=1;imageAspect=0;aspect=fixed;image=img/lib/azure2/containers/App_Services.svg;" vertex="1" parent="swa-card">
           <mxGeometry x="18" y="27" width="70" height="70" as="geometry"/>
         </mxCell>
-        <mxCell id="swa-label" value="Azure Static Web Apps&#xa;Angular frontend&#xa;Public HTTPS 443" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="swa-card">
+        <mxCell id="swa-label" value="Azure Linux Web App&#xa;Angular container&#xa;Public HTTPS 443" style="text;html=1;align=left;verticalAlign=middle;fontSize=14;fontStyle=1;whiteSpace=wrap;" vertex="1" parent="swa-card">
           <mxGeometry x="105" y="20" width="160" height="85" as="geometry"/>
         </mxCell>
 

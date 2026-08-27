@@ -6,7 +6,7 @@ This repository describes and deploys the Azure Quiz infrastructure. The project
 
 The `nonprod` environment is deployed and operational:
 
-- frontend: [Azure Static Web Apps](https://delightful-smoke-01664d103.7.azurestaticapps.net);
+- frontend: Azure Linux Web App (URL is created by Terraform);
 - backend API: [`/api/certifications`](https://app-azure-quiz-backend-nonprod.azurewebsites.net/api/certifications);
 - backend health: [`/actuator/health`](https://app-azure-quiz-backend-nonprod.azurewebsites.net/actuator/health);
 - remote state storage and locking in HCP Terraform;
@@ -24,7 +24,7 @@ User
   |
   | HTTPS
   v
-Azure Static Web Apps (Angular)
+Azure Linux Web App (Angular container)
   |
   | HTTPS REST API + CORS restricted to the frontend origin
   v
@@ -41,13 +41,13 @@ Azure Container Registry stores immutable backend images identified by their Git
 
 ## Why managed services?
 
-Azure Static Web Apps and Azure App Service were selected instead of AKS to reduce platform administration. There is no Kubernetes cluster, node pool, ingress controller or cluster upgrade to manage. The solution still demonstrates containerization, Infrastructure as Code, private networking, managed identities, secret management and continuous deployment.
+Azure App Service Web Apps were selected instead of AKS to reduce platform administration. There is no Kubernetes cluster, node pool, ingress controller or cluster upgrade to manage. The solution still demonstrates containerization, Infrastructure as Code, private networking, managed identities, secret management and continuous deployment.
 
 ## Deployed resources
 
 | Component | Resource | Purpose |
 |---|---|---|
-| Frontend | `swa-hmezouar-quiz-np` | Public Angular hosting over HTTPS |
+| Frontend | `app-azure-quiz-frontend-nonprod` | Public Angular container hosting over HTTPS |
 | Backend | `app-azure-quiz-backend-nonprod` | Spring Boot container hosting |
 | Images | `acrhmezouarquiznonprod` | Private registry with admin access disabled |
 | Database | `psql-hmezouar-quiz-np` | PostgreSQL 16 database `quizz` |
@@ -57,7 +57,7 @@ Azure Static Web Apps and Azure App Service were selected instead of AKS to redu
 | Network | VNet `10.50.0.0/16` | Web App integration, private endpoints and DNS |
 | Shared compute | `plan-npr-prf2026` | Trainer-provided Linux plan, referenced only |
 
-Application resources are deployed in `hmezouarRG`, primarily in `francecentral`. Static Web Apps uses the nearby supported region `westeurope`. The shared App Service Plan belongs to `rg-shared-prf2026` and is not managed by this repository.
+Non-production resources are deployed in `hmezouarRG`, primarily in `francecentral`. Production uses a dedicated `rg-azure-quiz-prod` resource group and App Service plan in `francecentral`. The shared non-prod App Service Plan belongs to `rg-shared-prf2026` and is not managed by this repository.
 
 ## Network and identity security
 
@@ -81,12 +81,11 @@ terraform/
     ├── network/
     ├── postgresql/
     ├── redis/
-    ├── static-web-app/
     ├── storage/
     └── web-app/
 ```
 
-Remote state is stored in the HCP Terraform organization `hmezouar-azure-quiz`, workspace `azure-quiz-nonprod`, using local execution mode. HCP Terraform stores, versions and locks the state while commands run locally.
+Remote state is stored in HCP Terraform organization `hmezouar-azure-quiz`, with one workspace per environment: `azure-quiz-nonprod` and `azure-quiz-prod`. HCP Terraform stores, versions and locks the state while Terraform runs from GitHub Actions or locally.
 
 Important decisions are recorded in [`docs/adr`](docs/adr), including managed services, network security, identities and HCP Terraform state.
 
@@ -114,7 +113,7 @@ The `Terraform` workflow provides the infrastructure CI/CD evidence required by 
 2. A push to `main` creates and publishes a Terraform plan but never applies it.
 3. GitHub Actions authenticates to Azure with OIDC and to HCP Terraform with an API token.
 4. The workflow displays the saved plan and keeps it as a short-lived workflow artifact.
-5. An operator reviews the plan, manually runs **Actions > Terraform > Run workflow**, and enters exactly `apply-nonprod`.
+5. An operator selects `nonprod` or `prod`, reviews the plan, manually runs **Actions > Terraform > Run workflow**, and enters exactly `apply-<environment>`.
 6. The manual apply job downloads and applies that exact saved plan, then displays the Terraform outputs.
 
 Configure the following GitHub **environment variables** on `nonprod`:
@@ -139,7 +138,7 @@ Protect `nonprod` with required reviewers when the GitHub plan permits it. This 
 
 The `Terraform Destroy` workflow is intentionally available only through `workflow_dispatch`. It never runs on a push or Pull Request. To use it, open **Actions > Terraform Destroy > Run workflow** and enter exactly `destroy-nonprod`.
 
-The workflow validates the confirmation, enters the protected `nonprod` environment, creates a saved destruction plan, publishes that plan in the workflow summary and applies the exact reviewed plan. Deleting the `hmezouarRG` resource group itself is outside this workflow because the group is an existing project prerequisite rather than a Terraform-managed resource.
+The workflow validates the confirmation, enters the selected protected environment, creates a saved destruction plan, publishes that plan in the workflow summary and applies the exact reviewed plan. Deleting the production resource group is possible only through this explicit manual workflow.
 
 ## Continuous delivery
 
@@ -149,7 +148,7 @@ Terraform creates the platform. The application repositories then deliver their 
 2. it pushes the SHA-tagged image to ACR;
 3. it deploys that image to Azure Web App and checks `/actuator/health`;
 4. the frontend pipeline tests and builds Angular;
-5. it publishes the reviewed static artifact to Azure Static Web Apps;
+5. it builds, scans and pushes the frontend container to ACR, then deploys it to an Azure Linux Web App;
 6. it verifies the frontend, backend and CORS policy.
 
 A failed build, scan, deployment or smoke test makes the GitHub workflow fail and reports the malfunction to developers.
@@ -175,6 +174,6 @@ A failed build, scan, deployment or smoke test makes the GitHub workflow fail an
 ## Related repositories
 
 - `bilan-azure-backend`: Spring Boot API, Docker image and backend pipeline;
-- `bilan-azure-frontend`: Angular application and Static Web Apps pipeline.
+- `bilan-azure-frontend`: Angular application, container image and Web App pipeline.
 
 Local application validation is documented in [docs/local-validation.md](docs/local-validation.md), and Azure discovery in [docs/azure-environment.md](docs/azure-environment.md).
