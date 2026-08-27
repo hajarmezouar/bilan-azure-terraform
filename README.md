@@ -111,10 +111,11 @@ make terraform-apply
 The `Terraform` workflow provides the infrastructure CI/CD evidence required by the project:
 
 1. Pull Requests run `terraform fmt -check`, `terraform init -backend=false` and `terraform validate` without Azure deployment credentials.
-2. A push to `main`, or a manual run, enters the protected GitHub environment `nonprod`.
+2. A push to `main` creates and publishes a Terraform plan but never applies it.
 3. GitHub Actions authenticates to Azure with OIDC and to HCP Terraform with an API token.
-4. The workflow creates and displays a saved Terraform plan.
-5. It applies that exact saved plan and then displays the Terraform outputs.
+4. The workflow displays the saved plan and keeps it as a short-lived workflow artifact.
+5. An operator reviews the plan, manually runs **Actions > Terraform > Run workflow**, and enters exactly `apply-nonprod`.
+6. The manual apply job downloads and applies that exact saved plan, then displays the Terraform outputs.
 
 Configure the following GitHub **environment variables** on `nonprod`:
 
@@ -132,7 +133,7 @@ repo:hajarmezouar@91194498/bilan-azure-terraform@1316992042:environment:nonprod
 
 This organization uses GitHub OIDC subject customization with immutable owner and repository IDs. The federated credential must therefore use the exact subject emitted in the workflow log, not the shorter default GitHub subject format.
 
-Protect `nonprod` with required reviewers when the GitHub plan permits it. This creates a manual approval gate before the job can obtain credentials, run the plan and modify Azure. No Azure client secret is stored in GitHub.
+Protect `nonprod` with required reviewers when the GitHub plan permits it. This adds an approval gate to the explicit manual confirmation before Azure can be modified. No Azure client secret is stored in GitHub, and an ordinary push can never execute `terraform apply`.
 
 ### Manual infrastructure destruction
 

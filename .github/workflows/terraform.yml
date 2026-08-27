@@ -12,6 +12,11 @@ on:
       - "terraform/**"
       - ".github/workflows/terraform.yml"
   workflow_dispatch:
+    inputs:
+      confirmation:
+        description: "Enter apply-nonprod to apply the reviewed non-production plan"
+        required: true
+        type: string
 
 permissions:
   contents: read
@@ -49,8 +54,8 @@ jobs:
       - name: Validate configuration
         run: terraform -chdir="$TF_WORKING_DIR" validate
 
-  deploy:
-    name: Terraform plan and apply
+  plan:
+    name: Terraform plan
     if: github.event_name != 'pull_request'
     needs: validate
     runs-on: ubuntu-latest
@@ -92,6 +97,58 @@ jobs:
           echo '```terraform' >> "$GITHUB_STEP_SUMMARY"
           terraform -chdir="$TF_WORKING_DIR" show -no-color nonprod.tfplan >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload reviewed plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-plan-${{ github.sha }}
+          path: ${{ env.TF_WORKING_DIR }}/nonprod.tfplan
+          if-no-files-found: error
+          retention-days: 1
+
+  apply:
+    name: Terraform apply (manual)
+    if: github.event_name == 'workflow_dispatch'
+    needs:
+      - validate
+      - plan
+    runs-on: ubuntu-latest
+    environment: nonprod
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Validate manual confirmation
+        if: inputs.confirmation != 'apply-nonprod'
+        run: |
+          echo "Invalid confirmation. Enter apply-nonprod to authorize the deployment."
+          exit 1
+
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: "1.15.8"
+
+      - name: Sign in to Azure with OIDC
+        uses: azure/login@v3
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Initialize HCP Terraform
+        run: terraform -chdir="$TF_WORKING_DIR" init -input=false
+
+      - name: Download reviewed plan
+        uses: actions/download-artifact@v4
+        with:
+          name: terraform-plan-${{ github.sha }}
+          path: ${{ env.TF_WORKING_DIR }}
 
       - name: Apply reviewed plan
         run: terraform -chdir="$TF_WORKING_DIR" apply -input=false nonprod.tfplan
