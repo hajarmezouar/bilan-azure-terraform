@@ -1,0 +1,39 @@
+# The subscription ID is intentionally omitted from source control.
+# scripts/terraform.ps1 reads it from the active Azure CLI session.
+
+resource_group_name                     = "rg-azure-quiz-prod"
+expected_location                       = "francecentral"
+service_plan_name                       = "asp-azure-quiz-prod"
+service_plan_sku                        = "B1"
+
+vnet_address_space                    = "10.60.0.0/16"
+app_service_integration_subnet_prefix = "10.60.1.0/24"
+private_endpoint_subnet_prefix        = "10.60.2.0/24"
+
+container_registry_name = "acrazurequizprod"
+container_registry_sku  = "Basic"
+
+backend_web_app_name                = "app-azure-quiz-backend-prod"
+backend_container_image_repository  = "azure-quiz-backend"
+backend_container_image_tag         = "latest"
+
+key_vault_name = "kv-azure-quiz-prod"
+
+postgresql_server_name        = "psql-azure-quiz-prod"
+postgresql_version            = "16"
+postgresql_sku_name           = "B_Standard_B1ms"
+postgresql_storage_mb         = 32768
+postgresql_database_name      = "quizz"
+postgresql_administrator_login = "quizadmin"
+
+redis_name     = "redis-azure-quiz-prod"
+redis_sku_name = "Balanced_B0"
+
+storage_account_name     = "stazurequizprod"
+storage_replication_type = "LRS"
+storage_access_tier      = "Hot"
+storage_container_name   = "application-files"
+
+frontend_web_app_name                 = "app-azure-quiz-frontend-prod"
+frontend_container_image_repository  = "azure-quiz-frontend"
+frontend_container_image_tag         = "latest"

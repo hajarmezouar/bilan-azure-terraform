@@ -1,29 +1,16 @@
-data "azurerm_resource_group" "project" {
-  name = var.resource_group_name
-
-  lifecycle {
-    postcondition {
-      condition     = self.location == var.expected_location
-      error_message = "The existing resource group must be located in ${var.expected_location}."
-    }
-  }
+resource "azurerm_resource_group" "project" {
+  name     = var.resource_group_name
+  location = var.expected_location
+  tags     = var.common_tags
 }
 
-data "azurerm_service_plan" "shared" {
-  name                = var.shared_service_plan_name
-  resource_group_name = var.shared_service_plan_resource_group_name
-
-  lifecycle {
-    postcondition {
-      condition     = self.location == var.expected_location
-      error_message = "The shared App Service Plan must be located in ${var.expected_location}."
-    }
-
-    postcondition {
-      condition     = self.os_type == "Linux"
-      error_message = "The shared App Service Plan must be a Linux plan."
-    }
-  }
+resource "azurerm_service_plan" "app" {
+  name                = var.service_plan_name
+  resource_group_name = azurerm_resource_group.project.name
+  location            = azurerm_resource_group.project.location
+  os_type             = "Linux"
+  sku_name            = var.service_plan_sku
+  tags                = var.common_tags
 }
 
 data "azurerm_client_config" "current" {}
@@ -32,8 +19,8 @@ module "network" {
   source = "../../modules/network"
 
   name_prefix                           = local.name_prefix
-  resource_group_name                   = data.azurerm_resource_group.project.name
-  location                              = data.azurerm_resource_group.project.location
+  resource_group_name                   = azurerm_resource_group.project.name
+  location                              = azurerm_resource_group.project.location
   vnet_address_space                    = var.vnet_address_space
   app_service_integration_subnet_prefix = var.app_service_integration_subnet_prefix
   private_endpoint_subnet_prefix        = var.private_endpoint_subnet_prefix
@@ -44,8 +31,8 @@ module "container_registry" {
   source = "../../modules/container-registry"
 
   name                = var.container_registry_name
-  resource_group_name = data.azurerm_resource_group.project.name
-  location            = data.azurerm_resource_group.project.location
+  resource_group_name = azurerm_resource_group.project.name
+  location            = azurerm_resource_group.project.location
   sku                 = var.container_registry_sku
   tags                = var.common_tags
 }
@@ -54,8 +41,8 @@ module "key_vault" {
   source = "../../modules/key-vault"
 
   name                       = var.key_vault_name
-  resource_group_name        = data.azurerm_resource_group.project.name
-  location                   = data.azurerm_resource_group.project.location
+  resource_group_name        = azurerm_resource_group.project.name
+  location                   = azurerm_resource_group.project.location
   tenant_id                  = data.azurerm_client_config.current.tenant_id
   private_endpoint_subnet_id = module.network.private_endpoint_subnet_id
   private_dns_zone_id        = module.network.private_dns_zone_ids["key_vault"]
@@ -66,8 +53,8 @@ module "postgresql" {
   source = "../../modules/postgresql"
 
   name                       = var.postgresql_server_name
-  resource_group_name        = data.azurerm_resource_group.project.name
-  location                   = data.azurerm_resource_group.project.location
+  resource_group_name        = azurerm_resource_group.project.name
+  location                   = azurerm_resource_group.project.location
   postgresql_version         = var.postgresql_version
   sku_name                   = var.postgresql_sku_name
   storage_mb                 = var.postgresql_storage_mb
@@ -83,8 +70,8 @@ module "redis" {
   source = "../../modules/redis"
 
   name                       = var.redis_name
-  resource_group_name        = data.azurerm_resource_group.project.name
-  location                   = data.azurerm_resource_group.project.location
+  resource_group_name        = azurerm_resource_group.project.name
+  location                   = azurerm_resource_group.project.location
   sku_name                   = var.redis_sku_name
   key_vault_id               = module.key_vault.id
   private_endpoint_subnet_id = module.network.private_endpoint_subnet_id
@@ -96,9 +83,9 @@ module "web_app" {
   source = "../../modules/web-app"
 
   name                            = var.backend_web_app_name
-  resource_group_name             = data.azurerm_resource_group.project.name
-  location                        = data.azurerm_resource_group.project.location
-  service_plan_id                 = data.azurerm_service_plan.shared.id
+  resource_group_name             = azurerm_resource_group.project.name
+  location                        = azurerm_resource_group.project.location
+  service_plan_id                 = azurerm_service_plan.app.id
   virtual_network_subnet_id       = module.network.app_service_integration_subnet_id
   container_registry_id           = module.container_registry.id
   container_registry_login_server = module.container_registry.login_server
@@ -125,9 +112,9 @@ module "web_app_frontend" {
   source = "../../modules/web-app"
 
   name                            = var.frontend_web_app_name
-  resource_group_name             = data.azurerm_resource_group.project.name
-  location                        = data.azurerm_resource_group.project.location
-  service_plan_id                 = data.azurerm_service_plan.shared.id
+  resource_group_name             = azurerm_resource_group.project.name
+  location                        = azurerm_resource_group.project.location
+  service_plan_id                 = azurerm_service_plan.app.id
   virtual_network_subnet_id       = module.network.app_service_integration_subnet_id
   container_registry_id           = module.container_registry.id
   container_registry_login_server = module.container_registry.login_server
@@ -145,9 +132,9 @@ module "storage" {
   source = "../../modules/storage"
 
   name                       = var.storage_account_name
-  resource_group_name        = data.azurerm_resource_group.project.name
-  resource_group_id          = data.azurerm_resource_group.project.id
-  location                   = data.azurerm_resource_group.project.location
+  resource_group_name        = azurerm_resource_group.project.name
+  resource_group_id          = azurerm_resource_group.project.id
+  location                   = azurerm_resource_group.project.location
   replication_type           = var.storage_replication_type
   access_tier                = var.storage_access_tier
   container_name             = var.storage_container_name
@@ -161,8 +148,8 @@ module "github_actions_identity" {
   source = "../../modules/github-actions-identity"
 
   name                  = var.github_actions_identity_name
-  resource_group_name   = data.azurerm_resource_group.project.name
-  location              = data.azurerm_resource_group.project.location
+  resource_group_name   = azurerm_resource_group.project.name
+  location              = azurerm_resource_group.project.location
   github_oidc_subject   = var.backend_github_oidc_subject
   github_environment    = var.backend_github_environment
   container_registry_id = module.container_registry.id
@@ -174,10 +161,10 @@ module "github_actions_frontend" {
   source = "../../modules/github-actions-identity"
 
   name                  = var.frontend_github_actions_identity_name
-  resource_group_name   = data.azurerm_resource_group.project.name
-  location              = data.azurerm_resource_group.project.location
+  resource_group_name   = azurerm_resource_group.project.name
+  location              = azurerm_resource_group.project.location
   github_oidc_subject   = var.frontend_github_oidc_subject
-  github_environment    = "nonprod"
+  github_environment    = "prod"
   container_registry_id = module.container_registry.id
   web_app_id            = module.web_app_frontend.id
   tags                  = var.common_tags
