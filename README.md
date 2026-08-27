@@ -6,8 +6,8 @@ This repository describes and deploys the Azure Quiz infrastructure. The project
 
 The `nonprod` environment is deployed and operational:
 
-- frontend: [Azure Static Web Apps](https://icy-stone-0f2132603.7.azurestaticapps.net);
-- backend: [Azure Linux Web App](https://app-azure-quiz-backend-nonprod.azurewebsites.net);
+- frontend: [Azure Static Web Apps](https://delightful-smoke-01664d103.7.azurestaticapps.net);
+- backend API: [`/api/certifications`](https://app-azure-quiz-backend-nonprod.azurewebsites.net/api/certifications);
 - backend health: [`/actuator/health`](https://app-azure-quiz-backend-nonprod.azurewebsites.net/actuator/health);
 - remote state storage and locking in HCP Terraform;
 - backend and frontend pipelines validated through deployment and smoke tests;
