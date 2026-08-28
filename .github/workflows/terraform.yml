@@ -106,7 +106,7 @@ jobs:
           echo '```' >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload reviewed plan
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: terraform-plan-${{ inputs.environment || 'nonprod' }}-${{ github.sha }}
           path: ${{ env.TF_WORKING_DIR }}/${{ inputs.environment || 'nonprod' }}.tfplan
