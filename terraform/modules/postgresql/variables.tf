@@ -57,7 +57,7 @@ variable "administrator_login" {
 variable "administrator_password_version" {
   description = "Rotation version shared by PostgreSQL and its Key Vault secret. Increment to rotate both atomically."
   type        = number
-  default     = 2
+  default     = 3
 
   validation {
     condition     = var.administrator_password_version >= 1 && floor(var.administrator_password_version) == var.administrator_password_version

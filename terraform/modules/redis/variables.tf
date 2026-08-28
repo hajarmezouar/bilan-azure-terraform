@@ -28,7 +28,7 @@ variable "access_key_secret_name" {
 variable "access_key_secret_version" {
   description = "Version used to republish the current Redis access key to Key Vault after recovery or rotation."
   type        = number
-  default     = 2
+  default     = 3
 
   validation {
     condition     = var.access_key_secret_version >= 1 && floor(var.access_key_secret_version) == var.access_key_secret_version
