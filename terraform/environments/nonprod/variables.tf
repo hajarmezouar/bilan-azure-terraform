@@ -16,16 +16,16 @@ variable "expected_location" {
   default     = "francecentral"
 }
 
-variable "shared_service_plan_name" {
-  description = "Trainer-managed Linux App Service Plan used by the backend."
+variable "service_plan_name" {
+  description = "Terraform-managed Linux App Service Plan shared by frontend and backend."
   type        = string
-  default     = "plan-npr-prf2026"
+  default     = "plan-azure-quiz-nonprod"
 }
 
-variable "shared_service_plan_resource_group_name" {
-  description = "Resource group containing the trainer-managed App Service Plan."
+variable "service_plan_sku" {
+  description = "App Service SKU; Basic or higher is required for VNet integration."
   type        = string
-  default     = "rg-shared-prf2026"
+  default     = "B1"
 }
 
 variable "vnet_address_space" {
@@ -203,5 +203,6 @@ variable "common_tags" {
     environment = "nonprod"
     project     = "azure-quiz"
     managed-by  = "terraform"
+    managed_by  = "terraform"
   }
 }

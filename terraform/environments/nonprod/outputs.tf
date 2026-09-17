@@ -17,15 +17,15 @@ output "resource_group" {
   }
 }
 
-output "shared_service_plan" {
-  description = "Trainer-managed App Service Plan referenced by the backend."
+output "service_plan" {
+  description = "Terraform-managed Linux plan shared by frontend and backend."
   value = {
-    id             = data.azurerm_service_plan.shared.id
-    name           = data.azurerm_service_plan.shared.name
-    resource_group = var.shared_service_plan_resource_group_name
-    location       = data.azurerm_service_plan.shared.location
-    os_type        = data.azurerm_service_plan.shared.os_type
-    sku_name       = data.azurerm_service_plan.shared.sku_name
+    id             = azurerm_service_plan.app.id
+    name           = azurerm_service_plan.app.name
+    resource_group = azurerm_service_plan.app.resource_group_name
+    location       = azurerm_service_plan.app.location
+    os_type        = azurerm_service_plan.app.os_type
+    sku_name       = azurerm_service_plan.app.sku_name
   }
 }
 

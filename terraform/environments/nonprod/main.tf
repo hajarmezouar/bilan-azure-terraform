@@ -9,21 +9,13 @@ data "azurerm_resource_group" "project" {
   }
 }
 
-data "azurerm_service_plan" "shared" {
-  name                = var.shared_service_plan_name
-  resource_group_name = var.shared_service_plan_resource_group_name
-
-  lifecycle {
-    postcondition {
-      condition     = self.location == var.expected_location
-      error_message = "The shared App Service Plan must be located in ${var.expected_location}."
-    }
-
-    postcondition {
-      condition     = self.os_type == "Linux"
-      error_message = "The shared App Service Plan must be a Linux plan."
-    }
-  }
+resource "azurerm_service_plan" "app" {
+  name                = var.service_plan_name
+  resource_group_name = data.azurerm_resource_group.project.name
+  location            = data.azurerm_resource_group.project.location
+  os_type             = "Linux"
+  sku_name            = var.service_plan_sku
+  tags                = var.common_tags
 }
 
 data "azurerm_client_config" "current" {}
@@ -98,7 +90,7 @@ module "web_app" {
   name                            = var.backend_web_app_name
   resource_group_name             = data.azurerm_resource_group.project.name
   location                        = data.azurerm_resource_group.project.location
-  service_plan_id                 = data.azurerm_service_plan.shared.id
+  service_plan_id                 = azurerm_service_plan.app.id
   virtual_network_subnet_id       = module.network.app_service_integration_subnet_id
   container_registry_id           = module.container_registry.id
   container_registry_login_server = module.container_registry.login_server
@@ -127,7 +119,7 @@ module "web_app_frontend" {
   name                            = var.frontend_web_app_name
   resource_group_name             = data.azurerm_resource_group.project.name
   location                        = data.azurerm_resource_group.project.location
-  service_plan_id                 = data.azurerm_service_plan.shared.id
+  service_plan_id                 = azurerm_service_plan.app.id
   virtual_network_subnet_id       = module.network.app_service_integration_subnet_id
   container_registry_id           = module.container_registry.id
   container_registry_login_server = module.container_registry.login_server

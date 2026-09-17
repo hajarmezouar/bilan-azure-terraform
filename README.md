@@ -4,14 +4,15 @@ This repository describes and deploys the Azure Quiz infrastructure. The project
 
 ## Status
 
-The `nonprod` environment is deployed and operational:
+The `nonprod` environment is being restored after its Azure resources were deleted. The endpoints below are deployment targets; availability must be verified after CI/CD completes:
 
 - frontend: Azure Linux Web App (URL is created by Terraform);
 - backend API: [`/api/certifications`](https://app-azure-quiz-backend-nonprod.azurewebsites.net/api/certifications);
 - backend health: [`/actuator/health`](https://app-azure-quiz-backend-nonprod.azurewebsites.net/actuator/health);
 - remote state storage and locking in HCP Terraform;
 - backend and frontend pipelines validated through deployment and smoke tests;
-- latest Terraform check: no drift (`No changes`).
+- Terraform OIDC and HCP state access restored on 2026-09-17;
+- a dedicated Linux B1 plan replaces the deleted trainer-managed plan.
 
 ## Architecture
 
@@ -55,9 +56,11 @@ Azure App Service Web Apps were selected instead of AKS to reduce platform admin
 | Files | `sthmezouarquiznp` | Blob container `application-files` |
 | Secrets | `kv-hmezouar-quiz-np` | PostgreSQL and Redis secrets |
 | Network | VNet `10.50.0.0/16` | Web App integration, private endpoints and DNS |
-| Shared compute | `plan-npr-prf2026` | Trainer-provided Linux plan, referenced only |
+| Shared compute | `plan-azure-quiz-nonprod` | Terraform-managed Linux B1 plan for both Web Apps |
 
-Non-production resources are deployed in `hmezouarRG`, primarily in `francecentral`. Production uses a dedicated `rg-azure-quiz-prod` resource group and App Service plan in `francecentral`. The shared non-prod App Service Plan belongs to `rg-shared-prf2026` and is not managed by this repository.
+Non-production resources are deployed in `hmezouarRG`, primarily in `francecentral`. The nonprod App Service plan is created in that same assigned resource group, so deployment no longer depends on `rg-shared-prf2026`. The B1 tier supports the application's VNet integration and always-on setting; both apps share its compute capacity. Production uses a dedicated `rg-azure-quiz-prod` resource group and App Service plan in `francecentral`.
+
+The Terraform deployment identity `id-github-terraform-nonprod` is bootstrapped separately and must be preserved during application cleanup. Its GitHub federation trusts the `nonprod` environment using the repository's immutable OIDC subject. It has Contributor and Role Based Access Control Administrator on `hmezouarRG` only. The application deployment identities are recreated by Terraform; update each application's GitHub `AZURE_CLIENT_ID` from the new outputs before deploying images.
 
 ## Network and identity security
 
