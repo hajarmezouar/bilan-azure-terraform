@@ -152,7 +152,7 @@ jobs:
         run: terraform -chdir="$TF_WORKING_DIR" init -input=false
 
       - name: Download reviewed plan
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: terraform-plan-${{ inputs.environment }}-${{ github.sha }}
           path: ${{ env.TF_WORKING_DIR }}
