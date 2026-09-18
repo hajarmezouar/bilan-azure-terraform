@@ -4,15 +4,16 @@ This repository describes and deploys the Azure Quiz infrastructure. The project
 
 ## Status
 
-The `nonprod` environment is being restored after its Azure resources were deleted. The endpoints below are deployment targets; availability must be verified after CI/CD completes:
+The `nonprod` environment has been successfully recreated from Terraform and validated through the application CI/CD pipelines:
 
-- frontend: Azure Linux Web App (URL is created by Terraform);
-- backend API: [`/api/certifications`](https://app-azure-quiz-backend-nonprod.azurewebsites.net/api/certifications);
-- backend health: [`/actuator/health`](https://app-azure-quiz-backend-nonprod.azurewebsites.net/actuator/health);
-- remote state storage and locking in HCP Terraform;
-- backend and frontend pipelines validated through deployment and smoke tests;
-- Terraform OIDC and HCP state access restored on 2026-09-17;
-- a dedicated Linux B1 plan replaces the deleted trainer-managed plan.
+- frontend: `https://app-azure-quiz-frontend-nonprod.azurewebsites.net`;
+- backend API: `https://app-azure-quiz-backend-nonprod.azurewebsites.net/api/certifications`;
+- backend health: `https://app-azure-quiz-backend-nonprod.azurewebsites.net/actuator/health`;
+- remote Terraform state and locking are managed through HCP Terraform;
+- GitHub Actions authenticates to Azure through OIDC;
+- infrastructure deployment through Terraform CI/CD is operational;
+- backend and frontend container deployments have been validated;
+- the dedicated Terraform-managed Linux B1 App Service plan replaces the deleted trainer-managed shared plan.
 
 ## Architecture
 
@@ -145,25 +146,68 @@ The workflow validates the confirmation, enters the selected protected environme
 
 ## Continuous delivery
 
-Terraform creates the platform. The application repositories then deliver their artifacts:
+Terraform creates the Azure platform. The application repositories then build, secure and deliver their artifacts through independent CI/CD and DevSecOps workflows:
 
-1. the backend pipeline tests, builds and scans the Docker image;
-2. it pushes the SHA-tagged image to ACR;
-3. it deploys that image to Azure Web App and checks `/actuator/health`;
-4. the frontend pipeline tests and builds Angular;
-5. it builds, scans and pushes the frontend container to ACR, then deploys it to an Azure Linux Web App;
-6. it verifies the frontend, backend and CORS policy.
+1. Terraform provisions the Azure infrastructure and application deployment identities;
+2. dedicated security workflows validate source code, dependencies, secrets and container artifacts;
+3. the backend CI/CD pipeline builds and pushes the SHA-tagged backend image to ACR;
+4. the backend image is deployed to Azure Linux Web App and `/actuator/health` is verified;
+5. the frontend CI/CD pipeline builds and pushes the SHA-tagged frontend image to ACR;
+6. the frontend image is deployed to Azure Linux Web App;
+7. frontend availability, backend availability and CORS are verified;
+8. runtime security checks such as DAST and frontend accessibility run against the successfully deployed applications.
 
-A failed build, scan, deployment or smoke test makes the GitHub workflow fail and reports the malfunction to developers.
+A failed build, security gate, deployment or smoke test causes the corresponding GitHub Actions workflow to fail.
 
-## Repository governance
+## Infrastructure security and governance
 
-- signed commits with the GitHub `Verified` badge;
-- `CODEOWNERS` documenting ownership;
-- Dependabot for Terraform providers and GitHub Actions;
-- Trivy for IaC misconfiguration scanning;
-- Gitleaks for secret detection across Git history;
-- protected `main` branch with Pull Requests and required checks.
+Infrastructure security is validated independently from the application security workflows.
+
+| Control | Tool | Purpose |
+| --- | --- | --- |
+| IaC security | Trivy | Detect Terraform misconfigurations before infrastructure changes |
+| Secret detection | Gitleaks | Detect credentials, tokens and other secrets in the repository and Git history |
+| Dependency updates | Dependabot | Monitor Terraform providers and GitHub Actions dependencies |
+| Authentication | GitHub OIDC | Authenticate to Azure without storing a long-lived Azure client secret |
+| State | HCP Terraform | Remote state storage, versioning and locking |
+| Governance | CODEOWNERS / protected environments | Control ownership and infrastructure deployment |
+
+### IaC security
+
+Trivy scans the Terraform configuration for infrastructure misconfigurations before changes are applied to Azure.
+
+Infrastructure findings are reviewed in the context of the environment and Azure architecture. Security controls are corrected when applicable rather than being silently disabled to obtain a successful pipeline.
+
+### Secret detection
+
+Gitleaks scans the repository and Git history to prevent credentials, tokens and other secrets from being committed.
+
+Azure authentication does not require a stored client secret because GitHub Actions uses OIDC federation.
+
+The HCP Terraform API token is stored as a protected GitHub environment secret and is not committed to the repository.
+
+### Controlled infrastructure changes
+
+Infrastructure changes follow a deliberately controlled process:
+
+```text
+Pull Request
+     |
+     v
+fmt + validate + security checks
+     |
+     v
+Terraform plan
+     |
+     v
+Review
+     |
+     v
+Explicit manual apply
+     |
+     v
+Azure
+```
 
 ## Requirements coverage
 
