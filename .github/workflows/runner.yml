@@ -1,0 +1,97 @@
+name: Runner infrastructure and Ansible
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        type: choice
+        options: [apply, destroy, close-ssh]
+        default: apply
+        required: true
+      confirmation:
+        description: 'For destruction only: destroy-runner'
+        type: string
+  schedule:
+    - cron: '17,47 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: azure-quiz-runner-lifecycle
+  cancel-in-progress: false
+
+jobs:
+  lifecycle:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    environment: nonprod
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      OPERATION: ${{ inputs.operation || 'close-ssh' }}
+      CONFIRMATION: ${{ inputs.confirmation }}
+      ARM_USE_OIDC: 'true'
+      ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+      ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+      ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
+      TF_IN_AUTOMATION: 'true'
+      TF_INPUT: 'false'
+      TF_VAR_subscription_id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      TF_VAR_resource_group_name: ${{ vars.RUNNER_RESOURCE_GROUP || 'hmezouarRG' }}
+      TF_VAR_candidate_cidr: ${{ vars.RUNNER_CANDIDATE_CIDR }}
+      TF_VAR_ssh_public_key: ${{ vars.RUNNER_SSH_PUBLIC_KEY }}
+      TF_VAR_vm_size: ${{ vars.RUNNER_VM_SIZE || 'Standard_D2s_v5' }}
+      TF_VAR_state_storage_account_name: ${{ vars.RUNNER_STATE_STORAGE_ACCOUNT }}
+      RUNNER_REPOSITORY: ${{ vars.RUNNER_REPOSITORY }}
+      NSG_NAME: nsg-quiz-ci-runner
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - name: Check operation
+        shell: bash
+        run: |
+          if [[ "$OPERATION" == destroy && "$CONFIRMATION" != destroy-runner ]]; then
+            echo 'Enter destroy-runner to authorize destruction.' >&2
+            exit 1
+          fi
+      - uses: azure/login@8216e11d8cd9b42fe925c852af8e76311ff067ac
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+      - uses: hashicorp/setup-terraform@v4
+        if: env.OPERATION != 'close-ssh'
+        with:
+          terraform_version: '1.15.8'
+          terraform_wrapper: false
+      - name: Provision or destroy isolated runner infrastructure
+        if: env.OPERATION != 'close-ssh'
+        env:
+          GH_TOKEN: ${{ secrets.RUNNER_ADMIN_TOKEN }}
+        run: bash scripts/runner-infrastructure.sh
+      - name: Install Ansible
+        if: env.OPERATION == 'apply'
+        run: |
+          python3 -m venv "$RUNNER_TEMP/ansible-venv"
+          "$RUNNER_TEMP/ansible-venv/bin/pip" install 'ansible-core==2.19.3'
+          echo "$RUNNER_TEMP/ansible-venv/bin" >> "$GITHUB_PATH"
+      - name: Configure and verify runner twice
+        if: env.OPERATION == 'apply'
+        env:
+          GH_TOKEN: ${{ secrets.RUNNER_ADMIN_TOKEN }}
+          RUNNER_SSH_PRIVATE_KEY: ${{ secrets.RUNNER_SSH_PRIVATE_KEY }}
+        run: bash scripts/configure-runner.sh
+      - name: Close temporary SSH access
+        if: always()
+        run: bash scripts/close-runner-ssh.sh
+      - name: Remove local credentials
+        if: always()
+        run: rm -f "$RUNNER_TEMP/runner-key" "$RUNNER_TEMP/runner-known-hosts" "$RUNNER_TEMP/runner-inventory.json"
+      - name: Sign out
+        if: always()
+        run: az logout

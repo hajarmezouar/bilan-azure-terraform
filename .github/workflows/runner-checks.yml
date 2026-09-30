@@ -1,0 +1,32 @@
+name: Runner static checks
+on:
+  pull_request:
+    paths: ['terraform/runner*/**', 'ansible/**', 'scripts/*runner*.sh', '.github/workflows/runner*.yml']
+  push:
+    branches: [main]
+    paths: ['terraform/runner*/**', 'ansible/**', 'scripts/*runner*.sh', '.github/workflows/runner*.yml']
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_version: '1.15.8'
+      - run: |
+          for root in terraform/runner terraform/runner-state; do
+            terraform -chdir="$root" fmt -check
+            terraform -chdir="$root" init -backend=false -input=false -lockfile=readonly
+            terraform -chdir="$root" validate
+          done
+          for script in scripts/*runner*.sh; do bash -n "$script"; done
+      - name: Check Ansible syntax without connecting to a host
+        run: |
+          python3 -m venv "$RUNNER_TEMP/ansible-venv"
+          "$RUNNER_TEMP/ansible-venv/bin/pip" install 'ansible-core==2.19.3'
+          "$RUNNER_TEMP/ansible-venv/bin/ansible-playbook" -i 'runners,' --syntax-check ansible/runner.yml
