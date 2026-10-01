@@ -40,6 +40,7 @@ data "azurerm_resource_group" "state" {
 data "azurerm_client_config" "current" {}
 
 # Bootstrap state stays in HCP so the Blob account never stores its own state.
+# The GitHub-hosted bootstrap requires the public endpoint; shared keys and anonymous access remain disabled.\n#trivy:ignore:AVD-AZU-0012
 resource "azurerm_storage_account" "state" {
   name                            = var.state_storage_account_name
   resource_group_name             = data.azurerm_resource_group.state.name
