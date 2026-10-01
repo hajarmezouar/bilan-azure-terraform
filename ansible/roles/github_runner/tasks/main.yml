@@ -1,0 +1,87 @@
+- name: Install build tools and runner dependencies
+  ansible.builtin.apt:
+    name: [acl, ca-certificates, curl, git, jq, unzip, docker.io, docker-buildx, openjdk-21-jdk-headless, libicu74]
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Start Docker
+  ansible.builtin.systemd_service:
+    name: docker
+    enabled: true
+    state: started
+
+- name: Create runner account
+  ansible.builtin.user:
+    name: github-runner
+    shell: /bin/bash
+    groups: docker
+    append: true
+    create_home: true
+
+- name: Create runner directory
+  ansible.builtin.file:
+    path: /opt/github-runner
+    state: directory
+    owner: github-runner
+    group: github-runner
+    mode: '0755'
+
+- name: Check runner installation
+  ansible.builtin.stat:
+    path: /opt/github-runner/config.sh
+  register: runner_installed
+
+- name: Download verified runner archive
+  ansible.builtin.get_url:
+    url: "{{ lookup('env', 'RUNNER_DOWNLOAD_URL') }}"
+    checksum: "{{ lookup('env', 'RUNNER_CHECKSUM') }}"
+    dest: /opt/github-runner.tar.gz
+    mode: '0644'
+  when: not runner_installed.stat.exists
+
+- name: Extract runner
+  ansible.builtin.unarchive:
+    src: /opt/github-runner.tar.gz
+    dest: /opt/github-runner
+    remote_src: true
+    owner: github-runner
+    group: github-runner
+    creates: /opt/github-runner/config.sh
+
+- name: Register runner once
+  become_user: github-runner
+  ansible.builtin.command:
+    argv:
+      - /opt/github-runner/config.sh
+      - --unattended
+      - --url
+      - "https://github.com/{{ lookup('env', 'RUNNER_REPOSITORY') }}"
+      - --token
+      - "{{ lookup('env', 'RUNNER_REGISTRATION_TOKEN') }}"
+      - --name
+      - quiz-ci-runner
+      - --labels
+      - azure-quiz
+      - --work
+      - _work
+    chdir: /opt/github-runner
+    creates: /opt/github-runner/.runner
+  no_log: true
+
+- name: Install runner service
+  ansible.builtin.command:
+    argv: [/opt/github-runner/svc.sh, install, github-runner]
+    chdir: /opt/github-runner
+    creates: /opt/github-runner/.service
+
+- name: Read service name
+  ansible.builtin.slurp:
+    src: /opt/github-runner/.service
+  register: runner_service
+
+- name: Enable runner service
+  ansible.builtin.systemd_service:
+    name: "{{ runner_service.content | b64decode | trim }}"
+    enabled: true
+    state: started

@@ -1,0 +1,5 @@
+- name: Configure the backend GitHub runner
+  hosts: runners
+  become: true
+  roles:
+    - github_runner
