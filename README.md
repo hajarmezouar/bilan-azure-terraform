@@ -13,6 +13,7 @@ The `nonprod` environment has been successfully recreated from Terraform and val
 - GitHub Actions authenticates to Azure through OIDC;
 - infrastructure deployment through Terraform CI/CD is operational;
 - backend and frontend container deployments have been validated;
+- the isolated Azure VM runner lifecycle and idempotent Ansible configuration have been validated;
 - the dedicated Terraform-managed Linux B1 App Service plan replaces the deleted trainer-managed shared plan.
 
 ## Architecture
@@ -58,6 +59,8 @@ Azure App Service Web Apps were selected instead of AKS to reduce platform admin
 | Secrets | `kv-hmezouar-quiz-np` | PostgreSQL and Redis secrets |
 | Network | VNet `10.50.0.0/16` | Web App integration, private endpoints and DNS |
 | Shared compute | `plan-azure-quiz-nonprod` | Terraform-managed Linux B1 plan for both Web Apps |
+| CI runner | `quiz-ci-runner` | Dedicated GitHub Actions self-hosted runner configured by Ansible |
+| Runner state | Azure Blob container `tfstate` | Independent remote state with Azure AD authentication and locking |
 
 Non-production resources are deployed in `hmezouarRG`, primarily in `francecentral`. The nonprod App Service plan is created in that same assigned resource group, so deployment no longer depends on `rg-shared-prf2026`. The B1 tier supports the application's VNet integration and always-on setting; both apps share its compute capacity. Production uses a dedicated `rg-azure-quiz-prod` resource group and App Service plan in `francecentral`.
 
@@ -78,6 +81,8 @@ The Terraform deployment identity `id-github-terraform-nonprod` is bootstrapped 
 ```text
 terraform/
 ├── environments/nonprod/
+├── runner/
+├── runner-state/
 └── modules/
     ├── container-registry/
     ├── github-actions-identity/
@@ -92,6 +97,8 @@ terraform/
 Remote state is stored in HCP Terraform organization `hmezouar-azure-quiz`, with one workspace per environment: `azure-quiz-nonprod` and `azure-quiz-prod`. HCP Terraform stores, versions and locks the state while Terraform runs from GitHub Actions or locally.
 
 Important decisions are recorded in [`docs/adr`](docs/adr), including managed services, network security, identities and HCP Terraform state.
+
+The self-hosted runner is deliberately isolated from the application state. Its Azure resources are defined in `terraform/runner`, its protected Blob backend is bootstrapped by `terraform/runner-state`, and Ansible configuration lives under `ansible/`. Operational details are documented in [docs/self-hosted-runner.md](docs/self-hosted-runner.md).
 
 ## Usage
 
@@ -143,6 +150,8 @@ Protect `nonprod` with required reviewers when the GitHub plan permits it. This 
 The `Terraform Destroy` workflow is intentionally available only through `workflow_dispatch`. It never runs on a push or Pull Request. To use it, open **Actions > Terraform Destroy > Run workflow** and enter exactly `destroy-nonprod`.
 
 The workflow validates the confirmation, enters the selected protected environment, creates a saved destruction plan, publishes that plan in the workflow summary and applies the exact reviewed plan. Deleting the production resource group is possible only through this explicit manual workflow.
+
+The runner has a separate controlled lifecycle. The `Runner infrastructure and Ansible` workflow accepts `apply`, `close-ssh` or `destroy`; destruction additionally requires the exact confirmation `destroy-runner`. Ordinary pushes and Pull Requests cannot destroy the runner.
 
 ## Continuous delivery
 
