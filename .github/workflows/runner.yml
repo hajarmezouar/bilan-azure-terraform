@@ -45,6 +45,7 @@ jobs:
       TF_VAR_candidate_cidr: ${{ vars.RUNNER_CANDIDATE_CIDR }}
       TF_VAR_ssh_public_key: ${{ vars.RUNNER_SSH_PUBLIC_KEY }}
       TF_VAR_vm_size: ${{ vars.RUNNER_VM_SIZE || 'Standard_D2s_v5' }}
+      TF_VAR_location: ${{ vars.RUNNER_LOCATION || 'francecentral' }}
       TF_VAR_state_storage_account_name: ${{ vars.RUNNER_STATE_STORAGE_ACCOUNT }}
       RUNNER_REPOSITORY: ${{ vars.RUNNER_REPOSITORY }}
       NSG_NAME: nsg-quiz-ci-runner
