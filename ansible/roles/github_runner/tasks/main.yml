@@ -38,6 +38,11 @@
     checksum: "{{ lookup('env', 'RUNNER_CHECKSUM') }}"
     dest: /opt/github-runner.tar.gz
     mode: '0644'
+    timeout: 120
+  register: runner_download
+  retries: 3
+  delay: 10
+  until: runner_download is succeeded
   when: not runner_installed.stat.exists
 
 - name: Extract runner
